@@ -7,12 +7,11 @@ module EventSource
         dependency :net_http, NetHTTP
         dependency :telemetry, ::Telemetry
 
-        def self.build
+        def self.build(settings=nil, namespace: nil)
           instance = new
 
-          Settings.set instance
           ::Telemetry.configure instance
-          NetHTTP.configure instance
+          NetHTTP.configure instance, settings: settings, namespace: namespace
 
           instance.connect
 

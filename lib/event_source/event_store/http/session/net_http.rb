@@ -3,12 +3,13 @@ module EventSource
     module HTTP
       class Session
         module NetHTTP
-          def self.configure(receiver, settings: nil, attr_name: nil)
+          def self.configure(receiver, settings: nil, namespace: nil, attr_name: nil)
             attr_name ||= :net_http
             settings ||= Settings.instance
+            namespace = Array(namespace)
 
-            host = settings.get :host
-            port = settings.get :port
+            host = settings.get *namespace, :host
+            port = settings.get *namespace, :port
 
             net_http = Net::HTTP.new host, port
 
