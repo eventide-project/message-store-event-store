@@ -8,5 +8,7 @@ require 'event_source/event_store/http/controls'
 
 require 'test_bench'; TestBench.activate
 
+require 'pp'
+
 EventStore = EventSource::EventStore
-#Controls = EventSource::EventStore::HTTP::Controls
+Controls = EventSource::EventStore::HTTP::Controls
