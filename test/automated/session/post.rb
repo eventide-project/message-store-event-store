@@ -26,4 +26,52 @@ context "Session Issues Post Request" do
       assert status_code == 400
     end
   end
+
+  context "Recorded telemetry" do
+    media_type = Controls::MediaType.events
+
+    telemetry_sink = EventStore::HTTP::Session.register_telemetry_sink session
+
+    status_code = session.post path, request_body, media_type
+
+    test "Path is recorded" do
+      assert telemetry_sink do
+        recorded_post? do |record|
+          record.data.path == path
+        end
+      end
+    end
+
+    test "Status code is recorded" do
+      assert telemetry_sink do
+        recorded_post? do |record|
+          record.data.status_code == 201
+        end
+      end
+    end
+
+    test "Reason phrase is recorded" do
+      assert telemetry_sink do
+        recorded_post? do |record|
+          record.data.reason_phrase == 'Created'
+        end
+      end
+    end
+
+    test "Request body is recorded" do
+      assert telemetry_sink do
+        recorded_post? do |record|
+          record.data.request_body == request_body
+        end
+      end
+    end
+
+    test "Content type is recorded" do
+      assert telemetry_sink do
+        recorded_post? do |record|
+          record.data.content_type == media_type
+        end
+      end
+    end
+  end
 end

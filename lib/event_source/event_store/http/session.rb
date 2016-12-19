@@ -4,6 +4,8 @@ module EventSource
       class Session
         include Log::Dependency
 
+        dependency :telemetry, ::Telemetry
+
         attr_accessor :net_http
 
         setting :host
@@ -12,8 +14,17 @@ module EventSource
         def self.build
           instance = new
           Settings.set instance
+          ::Telemetry.configure instance
           instance.connect
           instance
+        end
+
+        def self.register_telemetry_sink(instance)
+          sink = Telemetry::Sink.new
+
+          instance.telemetry.register sink
+
+          sink
         end
 
         def connect
@@ -72,6 +83,16 @@ module EventSource
 
           probe.(response) if probe
 
+          record = Telemetry::Get.new(
+            path,
+            status_code,
+            response.message,
+            response.body,
+            media_type
+          )
+
+          telemetry.record(:get, record)
+
           if (200..399).include? status_code
             return status_code, response.body
           else
@@ -102,6 +123,16 @@ module EventSource
           end
 
           probe.(response) if probe
+
+          record = Telemetry::Post.new(
+            path,
+            status_code,
+            response.message,
+            request_body,
+            media_type
+          )
+
+          telemetry.record(:post, record)
 
           status_code
         end
