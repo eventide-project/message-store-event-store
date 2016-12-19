@@ -4,8 +4,6 @@ module EventSource
       class Session
         include Log::Dependency
 
-        configure :session
-
         dependency :net_http, NetHTTP
         dependency :telemetry, ::Telemetry
 
@@ -16,6 +14,20 @@ module EventSource
           NetHTTP.configure instance, settings: settings, namespace: namespace
 
           instance.connect
+
+          instance
+        end
+
+        def self.configure(receiver, settings=nil, namespace: nil, session: nil, attr_name: nil)
+          attr_name ||= :session
+
+          if session.nil?
+            instance = build settings, namespace: namespace
+          else
+            instance = session
+          end
+
+          receiver.public_send "#{attr_name}=", instance
 
           instance
         end

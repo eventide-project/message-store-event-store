@@ -1,5 +1,6 @@
 require 'net/http'
 
+require 'configure'; Configure.activate
 require 'event_source'
 require 'log'
 require 'settings'; Settings.activate
