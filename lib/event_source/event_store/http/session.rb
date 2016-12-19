@@ -28,9 +28,6 @@ module EventSource
         end
 
         def connect
-          host = net_http.address
-          port = net_http.port
-
           logger.trace(tag: [:http, :db_connection]) {
             "Connecting to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
           }
@@ -62,14 +59,16 @@ module EventSource
           net_http
         end
 
-        def get(path, media_type, &probe)
+        def get(path, media_type, headers=nil, &probe)
+          headers ||= {}
+
           logger.trace(tag: :http) {
             "Issuing GET request (Path: #{path}, MediaType: #{media_type})"
           }
 
-          initheader = { 'Accept' => media_type }
+          headers['Accept'] = media_type
 
-          response = net_http.request_get path, initheader
+          response = net_http.request_get path, headers
 
           status_code = response.code.to_i
           response_body = response.body if (200..399).include? status_code
@@ -99,15 +98,16 @@ module EventSource
           return status_code, response_body
         end
 
-        def post(path, request_body, media_type, &probe)
+        def post(path, request_body, media_type, headers=nil, &probe)
+          headers ||= {}
+          headers['Content-Type'] = media_type
+
           logger.trace(tag: :http) {
             "Issuing POST request (Path: #{path}, MediaType: #{media_type}, ContentLength: #{request_body.bytesize})"
           }
           logger.trace(tags: [:data]) { "Request:\n\n#{request_body}" }
 
-          initheader = { 'Content-Type' => media_type }
-
-          response = net_http.request_post path, request_body, initheader
+          response = net_http.request_post path, request_body, headers
 
           status_code = response.code.to_i
 
@@ -134,6 +134,14 @@ module EventSource
           telemetry.record :post, data
 
           status_code
+        end
+
+        def host
+          net_http.address
+        end
+
+        def port
+          net_http.port
         end
       end
     end

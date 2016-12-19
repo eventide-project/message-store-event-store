@@ -1,3 +1,3 @@
 source ./library-symlinks.sh
 
-remove_lib_symlinks 'event_source/event_store' 'http'
+remove_lib_symlinks 'http' 'event_source/event_store'
