@@ -4,6 +4,8 @@ module EventSource
       class Session
         include Log::Dependency
 
+        configure :session
+
         dependency :net_http, NetHTTP
         dependency :telemetry, ::Telemetry
 
