@@ -4,7 +4,7 @@ module EventSource
       module Controls
         module Write
           def self.call(event_count=nil, data: nil, metadata: nil, stream_name: nil, type: nil)
-            event_count ||= 0
+            event_count ||= 1
             stream_name ||= StreamName.example
 
             host = Settings.get :host

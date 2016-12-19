@@ -10,8 +10,11 @@ module EventSource
 
             host = settings.get *namespace, :host
             port = settings.get *namespace, :port
+            read_timeout = settings.get *namespace, :read_timeout
 
             net_http = Net::HTTP.new host, port
+
+            net_http.read_timeout = read_timeout if read_timeout
 
             receiver.public_send "#{attr_name}=", net_http
 

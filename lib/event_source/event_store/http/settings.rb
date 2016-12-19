@@ -11,7 +11,7 @@ module EventSource
         end
 
         def self.names
-          %i(host port)
+          %i(host port read_timeout)
         end
 
         def self.set(receiver)
