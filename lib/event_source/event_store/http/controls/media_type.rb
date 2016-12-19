@@ -3,6 +3,10 @@ module EventSource
     module HTTP
       module Controls
         module MediaType
+          def self.example
+            unknown
+          end
+
           def self.events
             EventStore::MediaTypes.vnd_event_store_events_json
           end

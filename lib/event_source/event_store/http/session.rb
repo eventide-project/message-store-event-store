@@ -4,18 +4,18 @@ module EventSource
       class Session
         include Log::Dependency
 
+        dependency :net_http, NetHTTP
         dependency :telemetry, ::Telemetry
-
-        attr_accessor :net_http
-
-        setting :host
-        setting :port
 
         def self.build
           instance = new
+
           Settings.set instance
           ::Telemetry.configure instance
+          NetHTTP.configure instance
+
           instance.connect
+
           instance
         end
 
@@ -28,14 +28,18 @@ module EventSource
         end
 
         def connect
+          host = net_http.address
+          port = net_http.port
+
           logger.trace(tag: [:http, :db_connection]) {
             "Connecting to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
           }
 
-          net_http_session = Net::HTTP.new host, port
-          net_http_session.start
+          net_http.start
 
-          self.net_http = net_http_session
+          data = Telemetry::Connected.new host, port
+
+          telemetry.record :connected, data
 
           logger.debug(tag: [:http, :db_connection]) {
             "Connected to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
@@ -45,35 +49,34 @@ module EventSource
         end
 
         def connected?
-          return false if net_http.nil?
-
           net_http.started?
         end
 
         def close
-          logger.trace(tag: [:http, :db_connection]) { "Closing net_http" }
+          logger.trace(tag: [:http, :db_connection]) { "Closing connection to EventStore" }
 
-          conn = net_http
+          net_http.finish
 
-          self.net_http = nil
+          logger.debug(tag: [:http, :db_connection]) { "Connection to EventStore closed" }
 
-          conn.finish
-
-          logger.debug(tag: [:http, :db_connection]) { "Connection closed" }
-
-          conn
+          net_http
         end
 
         def get(path, media_type, &probe)
-          logger.trace(tag: :http) { "Issuing GET request (Path: #{path}, MediaType: #{media_type})" }
+          logger.trace(tag: :http) {
+            "Issuing GET request (Path: #{path}, MediaType: #{media_type})"
+          }
 
           initheader = { 'Accept' => media_type }
 
           response = net_http.request_get path, initheader
 
           status_code = response.code.to_i
+          response_body = response.body if (200..399).include? status_code
 
-          logger.debug(tag: :http) { "GET request issued (Path: #{path}, MediaType: #{media_type}, StatusCode: #{status_code}, ReasonPhrase: #{response.message}, ContentLength: #{response.body&.bytesize.inspect})" }
+          logger.debug(tag: :http) {
+            "GET request issued (Path: #{path}, MediaType: #{media_type}, StatusCode: #{status_code}, ReasonPhrase: #{response.message}, ContentLength: #{response_body&.bytesize.inspect})"
+          }
 
           if response.body.empty?
             logger.debug(tags: [:data]) { "Response: (none)" }
@@ -83,7 +86,7 @@ module EventSource
 
           probe.(response) if probe
 
-          record = Telemetry::Get.new(
+          data = Telemetry::Get.new(
             path,
             status_code,
             response.message,
@@ -91,13 +94,9 @@ module EventSource
             media_type
           )
 
-          telemetry.record(:get, record)
+          telemetry.record :get, data
 
-          if (200..399).include? status_code
-            return status_code, response.body
-          else
-            return status_code, nil
-          end
+          return status_code, response_body
         end
 
         def post(path, request_body, media_type, &probe)
@@ -124,7 +123,7 @@ module EventSource
 
           probe.(response) if probe
 
-          record = Telemetry::Post.new(
+          data = Telemetry::Post.new(
             path,
             status_code,
             response.message,
@@ -132,7 +131,7 @@ module EventSource
             media_type
           )
 
-          telemetry.record(:post, record)
+          telemetry.record :post, data
 
           status_code
         end

@@ -6,9 +6,12 @@ module EventSource
           class Sink
             include ::Telemetry::Sink
 
+            record :connected
             record :get
             record :post
           end
+
+          Connected = Struct.new :host, :port
 
           Get = Struct.new(
             :path,

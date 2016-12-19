@@ -4,7 +4,7 @@ context "Session, Connected Predicate" do
   context "Session has not yet connected" do
     session = EventStore::HTTP::Session.new
 
-    EventStore::HTTP::Settings.set session
+    EventStore::HTTP::Session::NetHTTP.configure session
 
     test "False is returned" do
       assert session.connected? == false
@@ -14,7 +14,7 @@ context "Session, Connected Predicate" do
   context "Session has connected" do
     session = EventStore::HTTP::Session.new
 
-    EventStore::HTTP::Settings.set session
+    EventStore::HTTP::Session::NetHTTP.configure session
 
     session.connect
 
