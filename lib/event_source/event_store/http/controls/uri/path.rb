@@ -8,7 +8,7 @@ module EventSource
               def self.example(**stream_arguments)
                 stream = Controls::Stream.example **stream_arguments
 
-                stream_id = StreamName.get_id stream.name
+                stream_id = EventSource::StreamName.get_id stream.name
 
                 "/streams/#{stream.category}-#{stream_id}"
               end

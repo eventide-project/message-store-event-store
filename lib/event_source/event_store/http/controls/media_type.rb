@@ -4,7 +4,11 @@ module EventSource
       module Controls
         module MediaType
           def self.events
-            'application/vnd.eventstore.events+json'
+            EventStore::MediaTypes.vnd_event_store_events_json
+          end
+
+          def self.stream
+            EventStore::MediaTypes.vnd_event_store_atom_json
           end
 
           def self.unknown

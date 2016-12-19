@@ -17,14 +17,18 @@ module EventSource
         end
 
         def connect
-          logger.trace { "Connecting to EventStore (Host: #{host.inspect}, Port: #{port.inspect})" }
+          logger.trace(tag: [:http, :db_connection]) {
+            "Connecting to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
+          }
 
           net_http_session = Net::HTTP.new host, port
           net_http_session.start
 
           self.net_http = net_http_session
 
-          logger.debug { "Connected to EventStore (Host: #{host.inspect}, Port: #{port.inspect})" }
+          logger.debug(tag: [:http, :db_connection]) {
+            "Connected to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
+          }
 
           net_http
         end
@@ -36,7 +40,7 @@ module EventSource
         end
 
         def close
-          logger.trace(tag: :http) { "Closing net_http" }
+          logger.trace(tag: [:http, :db_connection]) { "Closing net_http" }
 
           conn = net_http
 
@@ -44,16 +48,42 @@ module EventSource
 
           conn.finish
 
-          logger.debug(tag: :http) { "Connection closed" }
+          logger.debug(tag: [:http, :db_connection]) { "Connection closed" }
 
           conn
         end
 
+        def get(path, media_type, &probe)
+          logger.trace(tag: :http) { "Issuing GET request (Path: #{path}, MediaType: #{media_type})" }
+
+          initheader = { 'Accept' => media_type }
+
+          response = net_http.request_get path, initheader
+
+          status_code = response.code.to_i
+
+          logger.debug(tag: :http) { "GET request issued (Path: #{path}, MediaType: #{media_type}, StatusCode: #{status_code}, ReasonPhrase: #{response.message}, ContentLength: #{response.body&.bytesize.inspect})" }
+
+          if response.body.empty?
+            logger.debug(tags: [:data]) { "Response: (none)" }
+          else
+            logger.debug(tags: [:data]) { "Response:\n\n#{response.body}" }
+          end
+
+          probe.(response) if probe
+
+          if (200..399).include? status_code
+            return status_code, response.body
+          else
+            return status_code, nil
+          end
+        end
+
         def post(path, request_body, media_type, &probe)
-          logger.trace(tag: :http) { "Issuing POST request (Path: #{path})" }
-          logger.trace(tags: [:http, :data]) {
-            "Request (ContentLength: #{request_body.bytesize}, MediaType: #{media_type}):\n\n#{request_body}"
+          logger.trace(tag: :http) {
+            "Issuing POST request (Path: #{path}, MediaType: #{media_type}, ContentLength: #{request_body.bytesize})"
           }
+          logger.trace(tags: [:data]) { "Request:\n\n#{request_body}" }
 
           initheader = { 'Content-Type' => media_type }
 
@@ -61,12 +91,14 @@ module EventSource
 
           status_code = response.code.to_i
 
-          logger.debug(tag: :http) { "POST request issued (Path: #{path}, StatusCode: #{status_code}, ReasonPhrase: #{response.message})" }
+          logger.debug(tag: :http) {
+            "POST request issued (Path: #{path}, MediaType: #{media_type}, ContentLength: #{request_body.bytesize}, StatusCode: #{status_code}, ReasonPhrase: #{response.message})"
+          }
 
           if response.body.empty?
-            logger.debug(tags: [:http, :data]) { "Response: (none)" }
+            logger.debug(tags: [:data]) { "Response: (none)" }
           else
-            logger.debug(tags: [:http, :data]) { "Response:\n\n#{response.body}" }
+            logger.debug(tags: [:data]) { "Response:\n\n#{response.body}" }
           end
 
           probe.(response) if probe
