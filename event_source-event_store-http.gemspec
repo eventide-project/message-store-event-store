@@ -15,10 +15,9 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 2.2.3'
 
-  s.add_runtime_dependency 'configure'
-  s.add_runtime_dependency 'event_source'
-  s.add_runtime_dependency 'log'
-  s.add_runtime_dependency 'settings'
+  s.add_runtime_dependency 'evt-configure'
+  s.add_runtime_dependency 'evt-event_source'
+  s.add_runtime_dependency 'evt-settings'
 
   s.add_development_dependency 'test_bench'
 end
