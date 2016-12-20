@@ -22,21 +22,14 @@ module EventSource
           end
 
           class Substitute
+            attr_accessor :address
             attr_writer :response_body
+            attr_accessor :port
             attr_accessor :status_code
             attr_accessor :started
 
-            setting :host
-            setting :port
-
             def self.build
-              instance = new
-              Settings.set instance
-              instance
-            end
-
-            def address
-              host
+              new
             end
 
             def request_get(path, initheader=nil)
