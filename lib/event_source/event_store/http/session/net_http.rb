@@ -23,6 +23,7 @@ module EventSource
 
           class Substitute
             attr_accessor :address
+            attr_accessor :reason_phrase
             attr_writer :response_body
             attr_accessor :port
             attr_accessor :status_code
@@ -37,7 +38,8 @@ module EventSource
 
               OpenStruct.new(
                 :code => status_code,
-                :body => response_body
+                :body => response_body,
+                :message => reason_phrase
               )
             end
 
@@ -46,7 +48,8 @@ module EventSource
 
               OpenStruct.new(
                 :code => status_code,
-                :body => response_body
+                :body => response_body,
+                :message => reason_phrase
               )
             end
 
@@ -70,9 +73,10 @@ module EventSource
               status_code || Defaults.post_request_status_code
             end
 
-            def set_response(status_code, response_body=nil)
+            def set_response(status_code, response_body=nil, reason_phrase: nil)
               self.status_code = status_code
               self.response_body = response_body if response_body
+              self.reason_phrase = reason_phrase if reason_phrase
             end
 
             module Defaults

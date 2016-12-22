@@ -16,7 +16,7 @@ context "Session Substitute, Get Request" do
 
   context "Get response is set" do
     substitute = SubstAttr::Substitute.build EventStore::HTTP::Session
-    substitute.set_response 200, 'some response body'
+    substitute.set_response 200, 'some response body', reason_phrase: 'Some message'
 
     context "Substitute has performed a GET request" do
       status_code, response_body = substitute.get path, media_type
@@ -68,6 +68,10 @@ context "Session Substitute, Get Request" do
 
         test "Response body" do
           assert telemetry_data.response_body == response_body
+        end
+
+        test "Reason phrase" do
+          assert telemetry_data.reason_phrase == 'Some message'
         end
 
         test "Acceptable media type" do

@@ -20,8 +20,12 @@ module EventSource
               instance
             end
 
-            def set_response(status_code, response_body=nil)
-              net_http.set_response status_code, response_body
+            def set_response(status_code, response_body=nil, reason_phrase: nil)
+              net_http.set_response(
+                status_code,
+                response_body,
+                reason_phrase: reason_phrase
+              )
             end
 
             module Assertions
