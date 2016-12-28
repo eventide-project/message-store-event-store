@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+require 'logger'
+require 'net/http'
+require 'timeout'
+
+ip_address = ENV['IP_ADDRESS'] || '127.0.0.1'
+ext_http_port = Integer(ENV['PORT'] || '2113')
+int_http_port = ext_http_port - 1
+cluster_size = Integer(ENV['CLUSTER_SIZE'] || '1')
+
+logger = Logger.new $stdout
+
+logger.info "Starting EventStore (IP: #{ip_address}, ClusterSize: #{cluster_size}, Port: #{ext_http_port})"
+
+command = %W(
+  ./run-node.sh
+  --run-projections=System
+  --mem-db
+  --ext-ip=#{ip_address}
+  --int-ip=#{ip_address}
+)
+
+if cluster_size > 1
+  command << "--cluster-size=#{cluster_size}"
+  command << "--gossip-seed=127.0.111.1:#{int_http_port - 1}"
+  command << "--discover-via-dns=false"
+end
+
+logger.info "Command: #{command * ' '}"
+
+Dir.chdir 'event-store' do
+  exec *command
+end

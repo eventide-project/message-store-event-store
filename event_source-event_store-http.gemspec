@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'evt-settings'
 
   s.add_development_dependency 'test_bench'
+  s.add_development_dependency 'rubydns'
 end
