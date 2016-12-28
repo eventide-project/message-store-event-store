@@ -23,7 +23,7 @@ command = %W(
 
 if cluster_size > 1
   command << "--cluster-size=#{cluster_size}"
-  command << "--gossip-seed=127.0.111.1:#{int_http_port - 1}"
+  command << "--gossip-seed=127.0.111.1:#{int_http_port}"
   command << "--discover-via-dns=false"
 end
 

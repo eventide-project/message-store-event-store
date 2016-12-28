@@ -78,3 +78,18 @@ cluster_ip_addresses.each do |ip_address|
     fail
   end
 end
+
+begin
+  TCPSocket.new '127.0.0.1', 10053
+rescue Errno::ECONNREFUSED
+  warn <<~TEXT
+
+  Test DNS server is not running on port 10053. Run the following command to
+  start it:
+
+      tools/start-test-dns-server
+
+  TEXT
+
+  fail
+end

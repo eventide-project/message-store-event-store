@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+require_relative '../init'
+
+require 'event_source/event_store/http/controls'
+
+require 'rubydns'
+
+interfaces = [
+  [:udp, "127.0.0.1", 10053],
+  [:tcp, "127.0.0.1", 10053]
+]
+
+RubyDNS::run_server :listen => interfaces do
+  match %r{\Aeventstore.example\z}, Resolv::DNS::Resource::IN::A do |transaction|
+    transaction.respond! '127.0.0.1'
+  end
+
+  match %r{\Aeventstore-cluster.example\z}, Resolv::DNS::Resource::IN::A do |transaction|
+    cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Cluster::IPAddress::List.example
+
+    cluster_ip_addresses.each do |ip_address|
+      transaction.respond! ip_address
+    end
+  end
+end
