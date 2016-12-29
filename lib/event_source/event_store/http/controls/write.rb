@@ -3,12 +3,13 @@ module EventSource
     module HTTP
       module Controls
         module Write
-          def self.call(event_count=nil, data: nil, metadata: nil, stream_name: nil, type: nil)
+          def self.call(event_count=nil, data: nil, metadata: nil, stream_name: nil, type: nil, settings: nil)
             event_count ||= 1
             stream_name ||= StreamName.example
+            settings ||= EventSource::EventStore::HTTP::Settings.instance
 
-            host = Settings.get :host
-            port = Settings.get :port
+            host = settings.get :host
+            port = settings.get :port
 
             event_data = EventData::Write.example(
               type: type,

@@ -5,7 +5,7 @@ require_relative '../init'
 require 'event_source/event_store/http/controls'
 
 ip_address = ENV['IP_ADDRESS'] || '127.0.0.1'
-ext_http_port = Integer(ENV['PORT'] || EventSource::EventStore::HTTP::Controls::Port.example)
+ext_http_port = Integer(ENV['PORT'] || EventSource::EventStore::HTTP::Controls::Settings::Port.example)
 int_http_port = ext_http_port - 1
 cluster_size = Integer(ENV['CLUSTER_SIZE'] || '1')
 
