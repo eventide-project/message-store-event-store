@@ -9,16 +9,59 @@ module EventSource
           setting :port
           setting :read_timeout
 
-          def call
-            net_http = Net::HTTP.new host, port
-            net_http.read_timeout = read_timeout if read_timeout
-            net_http.start
-            net_http
+          attr_writer :resolv_dns
 
-          rescue SocketError
+          def resolv_dns
+            @resolv_dns ||= Resolv::DNS.new
+          end
+
+          def self.build(settings: nil, namespace: nil)
+            settings ||= Settings.instance
+            namespace = Array(namespace)
+
+            instance = new
+            Settings.set instance, *namespace
+            instance
+          end
+
+          def self.call(**arguments)
+            instance = build **arguments
+            instance.()
+          end
+
+          def call
+            if Resolv::AddressRegex.match host
+              ip_addresses = [host]
+            else
+              ip_addresses = resolv_dns.getaddresses host
+              ip_addresses.map! &:to_s
+            end
+
+            resolv_dns.close
+
+            ip_addresses.each do |ip_address|
+              net_http = try_connect ip_address
+
+              return net_http if net_http
+            end
+
             error_message = "Could not connect to EventStore (Host: #{host}, Port: #{port})"
             logger.error error_message
             raise ConnectionError, error_message
+          end
+
+          def try_connect(ip_address)
+            net_http = Net::HTTP.new ip_address, port
+            net_http.read_timeout = read_timeout if read_timeout
+
+            begin
+              net_http.start
+            rescue Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL => error
+              logger.warn "Could not connect to EventStore (Host: #{host}, Port: #{port}, Error: #{error.class})"
+              return nil
+            end
+
+            net_http
           end
 
           ConnectionError = Class.new StandardError

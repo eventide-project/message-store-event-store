@@ -1,4 +1,5 @@
 require 'net/http'
+require 'resolv'
 
 require 'configure'; Configure.activate
 require 'event_source'
