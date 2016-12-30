@@ -9,6 +9,7 @@ module EventSource
         setting :read_timeout
 
         dependency :resolve_host, DNS::ResolveHost
+        dependency :telemetry, ::Telemetry
 
         def get_leader
           proc { |net_http| net_http.address }
@@ -21,12 +22,21 @@ module EventSource
           instance = new
           Settings.set instance, *namespace
           DNS::ResolveHost.configure instance
+          Telemetry.configure instance
           instance
         end
 
         def self.call(**arguments)
           instance = build **arguments
           instance.()
+        end
+
+        def self.register_telemetry_sink(instance)
+          sink = Telemetry::Sink.new
+
+          instance.telemetry.register sink
+
+          sink
         end
 
         def call(leader_host=nil)
@@ -58,6 +68,8 @@ module EventSource
             next if net_http.nil?
 
             leader_host = get_leader.(net_http)
+
+            net_http.finish
 
             logger.trace(tag: :db_connection) { "Leader determined (#{LogAttributes.get self}, LeaderHost: #{leader_host})" }
             return leader_host
@@ -106,7 +118,12 @@ module EventSource
         def connect(host)
           net_http = Net::HTTP.new host, port
           net_http.read_timeout = read_timeout if read_timeout
+
+          telemetry_data = Telemetry::Connected.new host, port, net_http
+          telemetry.record :connected, telemetry_data
+
           net_http.start
+
           net_http
         end
 
