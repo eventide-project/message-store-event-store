@@ -69,6 +69,9 @@ module EventSource
 
             leader_host = get_leader.(net_http)
 
+            telemetry_data = Telemetry::LeaderQueried.new leader_host, net_http
+            telemetry.record :leader_queried, telemetry_data
+
             net_http.finish
 
             logger.trace(tag: :db_connection) { "Leader determined (#{LogAttributes.get self}, LeaderHost: #{leader_host})" }

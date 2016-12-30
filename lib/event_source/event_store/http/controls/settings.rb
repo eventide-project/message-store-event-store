@@ -7,7 +7,7 @@ module EventSource
             ip_address = self.ip_address if ip_address == true
 
             if ip_address.nil?
-              hostname ||= Hostname.example
+              hostname ||= self.hostname
             else
               hostname ||= ip_address
             end

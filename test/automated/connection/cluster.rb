@@ -7,7 +7,11 @@ context "Session Connects To EventStore Cluster" do
   connect = EventStore::HTTP::Connect.new
 
   Controls::Settings::Cluster.set connect, hostname: hostname
+
   connect.resolve_host.set hostname, ip_address_list
+
+  Telemetry.configure connect
+  telemetry_sink = EventStore::HTTP::Connect.register_telemetry_sink connect
 
   connection = connect.()
 
@@ -23,5 +27,19 @@ context "Session Connects To EventStore Cluster" do
 
   test "Port specified in settings is used" do
     assert connection.port == Controls::Settings.port
+  end
+
+  test "EventStore is queried for cluster leader" do
+    assert telemetry_sink do
+      recorded_leader_queried?
+    end
+  end
+
+  test "Connection used for leader query is closed" do
+    assert telemetry_sink do
+      recorded_leader_queried? do |record|
+        !record.data.net_http.active?
+      end
+    end
   end
 end
