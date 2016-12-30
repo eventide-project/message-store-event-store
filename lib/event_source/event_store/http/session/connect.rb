@@ -9,11 +9,7 @@ module EventSource
           setting :port
           setting :read_timeout
 
-          attr_writer :resolv_dns
-
-          def resolv_dns
-            @resolv_dns ||= Resolv::DNS.new
-          end
+          dependency :resolve_host, DNS::ResolveHost
 
           def self.build(settings: nil, namespace: nil)
             settings ||= Settings.instance
@@ -21,6 +17,7 @@ module EventSource
 
             instance = new
             Settings.set instance, *namespace
+            DNS::ResolveHost.configure instance
             instance
           end
 
@@ -33,11 +30,8 @@ module EventSource
             if Resolv::AddressRegex.match host
               ip_addresses = [host]
             else
-              ip_addresses = resolv_dns.getaddresses host
-              ip_addresses.map! &:to_s
+              ip_addresses = resolve_host.(host)
             end
-
-            resolv_dns.close
 
             ip_addresses.each do |ip_address|
               net_http = try_connect ip_address

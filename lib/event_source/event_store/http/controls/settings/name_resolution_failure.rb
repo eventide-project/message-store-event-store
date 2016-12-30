@@ -3,9 +3,9 @@ module EventSource
     module HTTP
       module Controls
         module Settings
-          module Port
-            def self.example
-              2113
+          module NameResolutionFailure
+            def self.hostname
+              'unknown.example'
             end
           end
         end

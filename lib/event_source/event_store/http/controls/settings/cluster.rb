@@ -4,104 +4,31 @@ module EventSource
       module Controls
         module Settings
           module Cluster
-            def self.example
-              Available.example
+            def self.example(hostname: nil)
+              hostname ||= self.hostname
+
+              port = Settings.port
+
+              data = {
+                :host => hostname,
+                :port => port
+              }
             end
 
-            def self.size
-              3
+            def self.hostname
+              'cluster.eventstore.example'
             end
 
-            module Available
-              def self.example
-                hostname = Hostname.example
+            module IPAddress
+              def self.example(i=nil)
+                i ||= 1
 
-                Settings.example hostname: hostname
+                "127.0.111.#{i}"
               end
 
-              module Hostname
-                def self.example
-                  'eventstore-cluster.example'
-                end
-              end
-
-              module IPAddress
-                def self.example(i=nil)
-                  i ||= 1
-
-                  "127.0.111.#{i}"
-                end
-
-                module List
-                  def self.example
-                    (1..Cluster.size).map do |i|
-                      IPAddress.example i
-                    end
-                  end
-                end
-              end
-            end
-
-            module Unavailable
-              def self.example
-                hostname = Hostname.example
-
-                Settings.example hostname: hostname
-              end
-
-              module Hostname
-                def self.example
-                  'eventstore-cluster-unavailable.example'
-                end
-              end
-
-              module IPAddress
-                def self.example(i=nil)
-                  i ||= 1
-
-                  "127.0.222.#{i}"
-                end
-
-                module List
-                  def self.example
-                    (1..Cluster.size).map do |i|
-                      IPAddress.example i
-                    end
-                  end
-                end
-              end
-            end
-
-            module PartiallyAvailable
-              def self.example
-                hostname = Hostname.example
-
-                Settings.example hostname: hostname
-              end
-
-              module Hostname
-                def self.example
-                  'eventstore-cluster-partially-available.example'
-                end
-              end
-
-              module IPAddress
-                def self.example(i=nil)
-                  i ||= 1
-
-                  if i == 1
-                    Unavailable.example i
-                  else
-                    Available.example i
-                  end
-                end
-
-                module List
-                  def self.example
-                    (1..Cluster.size).map do |i|
-                      IPAddress.example i
-                    end
-                  end
+              def self.list
+                (1..3).map do |i|
+                  example i
                 end
               end
             end

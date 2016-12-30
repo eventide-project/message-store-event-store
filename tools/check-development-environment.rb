@@ -9,10 +9,10 @@ require 'socket'
 # at_exit is used to move the check procedure to the top of the file, above the
 # implementation details of each check. [Nathan Ladd, Thu 29 Dec 2016]
 at_exit do
-  available_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::NonCluster::Available::IPAddress.example
-  unavailable_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::NonCluster::Unavailable::IPAddress.example
-  available_cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Settings::Cluster::Available::IPAddress::List.example
-  unavailable_cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Settings::Cluster::Unavailable::IPAddress::List.example
+  available_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings.ip_address
+  unavailable_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::EventStoreUnavailable.ip_address
+  available_cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Settings::Cluster::IPAddress.list
+  unavailable_cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Settings::Cluster::Unavailable::IPAddress.list
 
   checks = [
     Checks::Symlink.new,
@@ -106,7 +106,7 @@ module Checks
     end
 
     def port
-      EventSource::EventStore::HTTP::Controls::Settings::Port.example
+      EventSource::EventStore::HTTP::Controls::Settings.port
     end
 
     def error_message
@@ -138,7 +138,7 @@ module Checks
       initializer :ip_address
 
       def port
-        EventSource::EventStore::HTTP::Controls::Settings::Port.example
+        EventSource::EventStore::HTTP::Controls::Settings.port
       end
 
       def error_message
