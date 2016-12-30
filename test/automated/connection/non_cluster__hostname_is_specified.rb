@@ -5,7 +5,7 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
     hostname = Controls::Settings.hostname
     ip_address = Controls::Settings.ip_address
 
-    connect = EventStore::HTTP::Session::Connect.new
+    connect = EventStore::HTTP::Connect.new
 
     Controls::Settings.set connect, hostname: hostname
 
@@ -30,7 +30,7 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
     hostname = Controls::Settings::EventStoreUnavailable.hostname
     ip_address = Controls::Settings::EventStoreUnavailable.ip_address
 
-    connect = EventStore::HTTP::Session::Connect.new
+    connect = EventStore::HTTP::Connect.new
 
     Controls::Settings.set connect, hostname: hostname
 
@@ -38,7 +38,7 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
 
     test "Connection error is raised" do
       assert proc { connect.() } do
-        raises_error? EventStore::HTTP::Session::Connect::ConnectionError
+        raises_error? EventStore::HTTP::Connect::ConnectionError
       end
     end
   end
@@ -46,13 +46,13 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
   context "Hostname cannot be resolved to an IP address" do
     hostname = Controls::Settings::NameResolutionFailure.hostname
 
-    connect = EventStore::HTTP::Session::Connect.new
+    connect = EventStore::HTTP::Connect.new
 
     Controls::Settings.set connect, hostname: hostname
 
     test "Connection error is raised" do
       assert proc { connect.() } do
-        raises_error? EventStore::HTTP::Session::Connect::ConnectionError
+        raises_error? EventStore::HTTP::Connect::ConnectionError
       end
     end
   end

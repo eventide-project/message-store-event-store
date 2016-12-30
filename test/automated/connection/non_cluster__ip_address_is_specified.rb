@@ -2,7 +2,7 @@ require_relative '../automated_init'
 
 context "Session Connects To Non-Clustered EventStore By IP Address" do
   context "EventStore is available" do
-    connect = EventStore::HTTP::Session::Connect.new
+    connect = EventStore::HTTP::Connect.new
 
     Controls::Settings.set connect, ip_address: true
 
@@ -24,13 +24,13 @@ context "Session Connects To Non-Clustered EventStore By IP Address" do
   context "EventStore is unavailable, connection refused" do
     ip_address = Controls::Settings::EventStoreUnavailable.ip_address
 
-    connect = EventStore::HTTP::Session::Connect.new
+    connect = EventStore::HTTP::Connect.new
 
     Controls::Settings.set connect, ip_address: ip_address
 
     test "Connection error is raised" do
       assert proc { connect.() } do
-        raises_error? EventStore::HTTP::Session::Connect::ConnectionError
+        raises_error? EventStore::HTTP::Connect::ConnectionError
       end
     end
   end
@@ -38,13 +38,13 @@ context "Session Connects To Non-Clustered EventStore By IP Address" do
   context "EventStore is unavailable, address is not available" do
     ip_address = '127.0.0.3'
 
-    connect = EventStore::HTTP::Session::Connect.new
+    connect = EventStore::HTTP::Connect.new
 
     Controls::Settings.set connect, ip_address: ip_address
 
     test "Connection error is raised" do
       assert proc { connect.() } do
-        raises_error? EventStore::HTTP::Session::Connect::ConnectionError
+        raises_error? EventStore::HTTP::Connect::ConnectionError
       end
     end
   end

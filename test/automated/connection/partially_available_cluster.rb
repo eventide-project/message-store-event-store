@@ -4,7 +4,7 @@ context "Session Connects To EventStore Cluster, First Address Returned By DNS I
   hostname = Controls::Settings::Cluster.hostname
   ip_address_list = Controls::Settings::Cluster::PartiallyAvailable::IPAddress.list
 
-  connect = EventStore::HTTP::Session::Connect.new
+  connect = EventStore::HTTP::Connect.new
 
   Controls::Settings::Cluster.set connect, hostname: hostname
   connect.resolve_host.set hostname, ip_address_list
