@@ -41,6 +41,10 @@ module EventSource
           end
 
           net_http = connect leader_host
+
+          logger.info(tag: :db_connection) { "Connected to EventStore (#{LogAttributes.get self}, Host: #{net_http.address})" }
+
+          net_http
         end
 
         def determine_leader
@@ -68,7 +72,14 @@ module EventSource
           if Resolv::AddressRegex.match host
             ip_address_list = [host]
           else
-            ip_address_list = resolve_host.(host)
+            begin
+              ip_address_list = resolve_host.(host)
+
+            rescue DNS::ResolveHost::ResolutionError => error
+              error_message = "Could not connect to EventStore (#{LogAttributes.get self}, Error: #{error.class})"
+              logger.error(tag: :db_connection) { error_message }
+              raise ConnectionError, error_message
+            end
           end
 
           logger.debug(tag: :db_connection) { "Host resolved (#{LogAttributes.get self}, IPAddressList: #{ip_address_list * ', '})" }
