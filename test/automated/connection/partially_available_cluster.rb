@@ -1,4 +1,4 @@
-require_relative '../../automated_init'
+require_relative '../automated_init'
 
 context "Session Connects To EventStore Cluster, First Address Returned By DNS Is Unavailable" do
   hostname = Controls::Settings::Cluster.hostname
