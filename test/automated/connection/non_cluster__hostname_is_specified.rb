@@ -11,6 +11,9 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
 
     connect.resolve_host.set hostname, ip_address
 
+    Telemetry.configure connect
+    telemetry_sink = EventStore::HTTP::Connect.register_telemetry_sink connect
+
     connection = connect.()
 
     test "Net::HTTP connection is returned" do
@@ -23,6 +26,12 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
 
     test "Port specified in settings is used" do
       assert connection.port == Controls::Settings.port
+    end
+
+    test "Leader is not queried" do
+      refute telemetry_sink do
+        recorded_leader_queried?
+      end
     end
   end
 

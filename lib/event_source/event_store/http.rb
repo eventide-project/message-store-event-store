@@ -10,6 +10,8 @@ require 'event_source/event_store/http/log'
 
 require 'event_source/event_store/http/media_types'
 
+require 'event_source/event_store/http/get_leader'
+
 require 'event_source/event_store/http/connect'
 require 'event_source/event_store/http/connect/telemetry'
 
