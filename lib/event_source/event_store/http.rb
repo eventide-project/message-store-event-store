@@ -1,7 +1,7 @@
 require 'net/http'
 require 'resolv'
 
-require 'configure'; Configure.activate
+require 'dns/resolve_host'
 require 'event_source'
 require 'log'
 require 'settings'; Settings.activate

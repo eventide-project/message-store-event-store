@@ -31,8 +31,6 @@ at_exit do
     checks << Checks::LoopbackAlias.new(ip_address)
   end
 
-  checks << Checks::PortOpen::TestDNSServer.new
-
   Checks.run *checks
 end
 
@@ -161,25 +159,6 @@ module Checks
               tools/start-event-store-cluster-node #{ip_address}
           TEXT
         end
-      end
-    end
-
-    class TestDNSServer < PortOpen
-      def ip_address
-        '127.0.0.1'
-      end
-
-      def port
-        10053
-      end
-
-      def error_message
-        <<~TEXT
-        Test DNS server is not running on port #{port}. Run the following command to
-        start it:
-
-            tools/start-test-dns-server
-        TEXT
       end
     end
   end
