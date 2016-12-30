@@ -6,11 +6,11 @@ module EventSource
           module Cluster
             module Unavailable
               def self.example
-                ip_addresses = IPAddress.list
+                ip_address_list = IPAddress.list
 
                 Cluster.example(
                   hostname: hostname,
-                  ip_addresses: ip_addresses
+                  ip_address_list: ip_address_list
                 )
               end
 

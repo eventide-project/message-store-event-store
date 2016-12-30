@@ -6,11 +6,11 @@ module EventSource
           module Cluster
             module PartiallyAvailable
               def self.example
-                ip_addresses = IPAddress.list
+                ip_address_list = IPAddress.list
 
                 Cluster.example(
                   hostname: hostname,
-                  ip_addresses: ip_addresses
+                  ip_address_list: ip_address_list
                 )
               end
 
@@ -23,9 +23,9 @@ module EventSource
                   i ||= 1
 
                   if i == 1
-                    Cluster::Unavailable.example i
+                    Cluster::Unavailable::IPAddress.example i
                   else
-                    Cluster.example i
+                    Cluster::IPAddress.example i
                   end
                 end
 

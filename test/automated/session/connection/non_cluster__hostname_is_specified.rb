@@ -8,6 +8,7 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
     connect = EventStore::HTTP::Session::Connect.new
 
     Controls::Settings.set connect, hostname: hostname
+
     connect.resolve_host.set hostname, ip_address
 
     connection = connect.()
@@ -32,6 +33,7 @@ context "Session Connects To Non-Clustered EventStore By Hostname" do
     connect = EventStore::HTTP::Session::Connect.new
 
     Controls::Settings.set connect, hostname: hostname
+
     connect.resolve_host.set hostname, ip_address
 
     test "Connection error is raised" do

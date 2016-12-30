@@ -13,6 +13,14 @@ module EventSource
                 :host => hostname,
                 :port => port
               }
+
+              EventStore::HTTP::Settings.build data
+            end
+
+            def self.set(receiver, hostname: nil)
+              settings = example hostname: hostname
+
+              settings.set receiver
             end
 
             def self.hostname

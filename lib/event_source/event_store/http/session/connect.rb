@@ -28,12 +28,12 @@ module EventSource
 
           def call
             if Resolv::AddressRegex.match host
-              ip_addresses = [host]
+              ip_address_list = [host]
             else
-              ip_addresses = resolve_host.(host)
+              ip_address_list = resolve_host.(host)
             end
 
-            ip_addresses.each do |ip_address|
+            ip_address_list.each do |ip_address|
               net_http = try_connect ip_address
 
               return net_http if net_http
