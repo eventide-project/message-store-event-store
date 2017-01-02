@@ -44,13 +44,13 @@ module EventSource
 
           leader_host ||= determine_leader
 
-          if leader_host.nil?
+          net_http = try_connect leader_host if leader_host
+
+          if net_http.nil?
             error_message = "Could not connect to EventStore (#{LogAttributes.get self})"
             logger.error(tag: :db_connection) { error_message }
             raise ConnectionError, error_message
           end
-
-          net_http = connect leader_host
 
           logger.info(tag: :db_connection) { "Connected to EventStore (#{LogAttributes.get self}, Host: #{net_http.address})" }
 
@@ -61,6 +61,14 @@ module EventSource
           logger.trace(tag: :db_connection) { "Determining leader (#{LogAttributes.get self})" }
 
           ip_address_list = get_ip_address_list
+
+          if ip_address_list.count == 1
+            ip_address = ip_address_list[0]
+
+            logger.debug(tag: :db_connection) { "EventStore is non-clustered; returning IP address (#{LogAttributes.get self}, IPAddress: #{ip_address})" }
+
+            return ip_address
+          end
 
           ip_address_list.each do |ip_address|
             net_http = try_connect ip_address
@@ -74,7 +82,8 @@ module EventSource
 
             net_http.finish
 
-            logger.trace(tag: :db_connection) { "Leader determined (#{LogAttributes.get self}, LeaderHost: #{leader_host})" }
+            logger.debug(tag: :db_connection) { "Leader determined (#{LogAttributes.get self}, LeaderHost: #{leader_host})" }
+
             return leader_host
           end
 
