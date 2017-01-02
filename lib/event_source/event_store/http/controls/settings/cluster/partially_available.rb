@@ -6,12 +6,7 @@ module EventSource
           module Cluster
             module PartiallyAvailable
               def self.example
-                ip_address_list = IPAddress.list
-
-                Cluster.example(
-                  hostname: hostname,
-                  ip_address_list: ip_address_list
-                )
+                Settings.example host: hostname
               end
 
               def self.hostname
@@ -19,13 +14,13 @@ module EventSource
               end
 
               module IPAddress
-                def self.example(i=nil)
-                  i ||= 1
+                def self.example(member=nil)
+                  member ||= 1
 
-                  if i == 1
-                    Cluster::Unavailable::IPAddress.example i
+                  if member == 1
+                    Settings::IPAddress.unavailable cluster_member: member
                   else
-                    Cluster::IPAddress.example i
+                    Settings::IPAddress.available cluster_member: member
                   end
                 end
 

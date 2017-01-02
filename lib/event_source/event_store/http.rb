@@ -12,3 +12,9 @@ require 'event_source/event_store/http/settings'
 
 require 'event_source/event_store/http/connect'
 require 'event_source/event_store/http/connect/net_http'
+
+require 'event_source/event_store/http/cluster_status/get'
+require 'event_source/event_store/http/cluster_status/get/transformer'
+require 'event_source/event_store/http/cluster_status/record'
+
+require 'event_source/event_store/http/get_leader'

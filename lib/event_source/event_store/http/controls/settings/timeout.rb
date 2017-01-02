@@ -3,9 +3,17 @@ module EventSource
     module HTTP
       module Controls
         module Settings
-          module ReadTimeout
-            def self.example
+          module Timeout
+            def self.open
               11
+            end
+
+            def self.read
+              12
+            end
+
+            def self.write
+              13
             end
           end
         end

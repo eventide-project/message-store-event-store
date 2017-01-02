@@ -1,0 +1,4 @@
+127.0.0.1 eventstore.example
+127.0.111.1 cluster.eventstore.example
+127.0.111.2 cluster.eventstore.example
+127.0.111.3 cluster.eventstore.example

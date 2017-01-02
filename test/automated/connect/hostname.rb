@@ -3,7 +3,7 @@ require_relative '../automated_init'
 context "Connecting To EventStore By Hostname" do
   hostname = 'localhost'
 
-  settings = Controls::Settings.example hostname: hostname
+  settings = Controls::Settings.example host: hostname
 
   connect = EventSource::EventStore::HTTP::Connect.build settings
 

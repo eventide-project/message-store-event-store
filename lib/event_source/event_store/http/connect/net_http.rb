@@ -4,8 +4,8 @@ module EventSource
       class Connect
         module NetHTTP
           module Assertions
-            def connected?(host: nil, port: nil, read_timeout: nil)
-              unless settings? host: host, port: port, read_timeout: read_timeout
+            def connected?(host: nil, port: nil, &block)
+              unless settings? host: host, port: port, &block
                 return false
               end
 
@@ -16,7 +16,7 @@ module EventSource
               not active?
             end
 
-            def settings?(host: nil, port: nil, read_timeout: nil)
+            def settings?(host: nil, port: nil, &block)
               unless host.nil? || address == host
                 return false
               end
@@ -25,11 +25,11 @@ module EventSource
                 return false
               end
 
-              unless read_timeout.nil? || self.read_timeout == read_timeout
-                return false
+              if block
+                return block.(self)
+              else
+                true
               end
-
-              true
             end
           end
         end

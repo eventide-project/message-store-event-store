@@ -4,13 +4,17 @@ module EventSource
       module Controls
         module Settings
           module NonCluster
-            module EventStoreUnavailable
+            module Unavailable
+              def self.example
+                Settings.example host: hostname
+              end
+
               def self.hostname
                 'unavailable.eventstore.example'
               end
 
               def self.ip_address
-                '127.0.0.2'
+                IPAddress.unavailable
               end
             end
           end

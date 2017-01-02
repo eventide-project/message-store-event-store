@@ -3,33 +3,32 @@ module EventSource
     module HTTP
       module Controls
         module Settings
-          def self.example(hostname: nil, ip_address: nil, read_timeout: nil)
+          def self.example(host: nil, ip_address: nil, open_timeout: nil, read_timeout: nil)
             ip_address = self.ip_address if ip_address == true
 
             if ip_address.nil?
-              hostname ||= self.hostname
+              host ||= hostname
             else
-              hostname ||= ip_address
+              host ||= ip_address
+            end
+
+            if open_timeout == true
+              open_timeout = Timeout.open
             end
 
             if read_timeout == true
-              read_timeout = ReadTimeout.example
+              read_timeout = Timeout.read
             end
 
             data = {
-              :host => hostname,
+              :host => host,
               :port => port
             }
 
             data[:read_timeout] = read_timeout if read_timeout
+            data[:open_timeout] = open_timeout if open_timeout
 
             EventStore::HTTP::Settings.build data
-          end
-
-          def self.set(receiver, hostname: nil, ip_address: nil)
-            settings = example hostname: hostname, ip_address: ip_address
-
-            settings.set receiver
           end
 
           def self.hostname
@@ -37,7 +36,7 @@ module EventSource
           end
 
           def self.ip_address
-            '127.0.0.1'
+            IPAddress.available
           end
 
           def self.port

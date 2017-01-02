@@ -3,11 +3,11 @@ require_relative '../automated_init'
 context "Connecting To EventStore, Host Is Specified" do
   host = 'localhost'
 
-  settings = Controls::Settings.example hostname: 'example.com'
+  settings = Controls::Settings.example host: 'example.com'
 
-  connect = EventSource::EventStore::HTTP::Connect.build settings, host: host
+  connect = EventSource::EventStore::HTTP::Connect.build settings
 
-  connection = connect.()
+  connection = connect.(host)
 
   test "Connection is made to specified host argument, not settings" do
     assert connection do

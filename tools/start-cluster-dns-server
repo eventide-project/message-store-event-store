@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require_relative '../init'
+
+require 'event_source/event_store/http/controls'
+
+EventSource::EventStore::HTTP::Controls::Cluster::DNSServer.start do
+  logger = Log.get __FILE__
+  logger.info "Started cluster DNS server"
+
+  sleep
+end

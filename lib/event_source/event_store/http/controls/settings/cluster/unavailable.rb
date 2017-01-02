@@ -6,12 +6,7 @@ module EventSource
           module Cluster
             module Unavailable
               def self.example
-                ip_address_list = IPAddress.list
-
-                Cluster.example(
-                  hostname: hostname,
-                  ip_address_list: ip_address_list
-                )
+                Settings.example host: hostname
               end
 
               def self.hostname
@@ -19,10 +14,10 @@ module EventSource
               end
 
               module IPAddress
-                def self.example(i=nil)
-                  i ||= 1
+                def self.example(member=nil)
+                  member ||= 1
 
-                  "127.0.222.#{i}"
+                  Settings::IPAddress.unavailable cluster_member: member
                 end
 
                 def self.list

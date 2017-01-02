@@ -4,23 +4,8 @@ module EventSource
       module Controls
         module Settings
           module Cluster
-            def self.example(hostname: nil)
-              hostname ||= self.hostname
-
-              port = Settings.port
-
-              data = {
-                :host => hostname,
-                :port => port
-              }
-
-              EventStore::HTTP::Settings.build data
-            end
-
-            def self.set(receiver, hostname: nil)
-              settings = example hostname: hostname
-
-              settings.set receiver
+            def self.example
+              Settings.example host: hostname
             end
 
             def self.hostname
@@ -28,10 +13,10 @@ module EventSource
             end
 
             module IPAddress
-              def self.example(i=nil)
-                i ||= 1
+              def self.example(member=nil)
+                member ||= 1
 
-                "127.0.111.#{i}"
+                Settings::IPAddress.available cluster_member: member
               end
 
               def self.list

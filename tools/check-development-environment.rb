@@ -9,8 +9,8 @@ require 'socket'
 # at_exit is used to move the check procedure to the top of the file, above the
 # implementation details of each check. [Nathan Ladd, Thu 29 Dec 2016]
 at_exit do
-  available_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::NonCluster.ip_address
-  unavailable_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::NonCluster::EventStoreUnavailable.ip_address
+  available_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::IPAddress.available
+  unavailable_non_cluster_ip_address = EventSource::EventStore::HTTP::Controls::Settings::IPAddress.unavailable
   available_cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Settings::Cluster::IPAddress.list
   unavailable_cluster_ip_addresses = EventSource::EventStore::HTTP::Controls::Settings::Cluster::Unavailable::IPAddress.list
 
@@ -132,6 +132,10 @@ module Checks
       true
     rescue Errno::ECONNREFUSED
       false
+    end
+
+    def ip_address
+      '127.0.0.1'
     end
 
     class EventStore < PortOpen

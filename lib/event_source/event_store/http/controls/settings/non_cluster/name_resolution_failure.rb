@@ -5,8 +5,12 @@ module EventSource
         module Settings
           module NonCluster
             module NameResolutionFailure
+              def self.example
+                Settings.example host: hostname
+              end
+
               def self.hostname
-                'unknown.example'
+                'unknown.eventstore.example'
               end
             end
           end

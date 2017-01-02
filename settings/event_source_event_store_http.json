@@ -1,5 +1,6 @@
 {
   "host": "localhost",
   "port": 2113,
-  "readTimeout": 1
+  "readTimeout": 1,
+  "openTimeout": 1
 }
