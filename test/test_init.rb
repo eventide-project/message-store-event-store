@@ -10,5 +10,6 @@ require 'test_bench'; TestBench.activate
 
 require 'pp'
 
-EventStore = EventSource::EventStore
 Controls = EventSource::EventStore::HTTP::Controls
+
+Net::HTTP.send :const_set, :Assertions, EventSource::EventStore::HTTP::Connect::NetHTTP::Assertions

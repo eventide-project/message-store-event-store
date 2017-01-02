@@ -3,7 +3,7 @@ module EventSource
     module HTTP
       module Controls
         module Settings
-          def self.example(hostname: nil, ip_address: nil)
+          def self.example(hostname: nil, ip_address: nil, read_timeout: nil)
             ip_address = self.ip_address if ip_address == true
 
             if ip_address.nil?
@@ -12,10 +12,16 @@ module EventSource
               hostname ||= ip_address
             end
 
+            if read_timeout == true
+              read_timeout = ReadTimeout.example
+            end
+
             data = {
               :host => hostname,
               :port => port
             }
+
+            data[:read_timeout] = read_timeout if read_timeout
 
             EventStore::HTTP::Settings.build data
           end
@@ -27,7 +33,7 @@ module EventSource
           end
 
           def self.hostname
-            'eventstore.example'
+            'localhost'
           end
 
           def self.ip_address
