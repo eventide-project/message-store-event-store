@@ -13,7 +13,7 @@ module EventSource
           namespace = Array(namespace)
 
           instance = new
-          settings.set instance, *namespace
+          settings.set instance, *namespace, strict: true
           instance.host = host if host
           instance
         end
