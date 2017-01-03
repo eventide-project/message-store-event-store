@@ -17,3 +17,5 @@ require 'event_source/event_store/http/clustering/get_status'
 require 'event_source/event_store/http/clustering/get_status/transformer'
 require 'event_source/event_store/http/clustering/get_status/record'
 require 'event_source/event_store/http/clustering/get_leader'
+
+require 'event_source/event_store/http/session'

@@ -1,7 +1,7 @@
 require_relative '../../automated_init'
 
 context "Get Leader When All EventStore Cluster Nodes Are Unavailable" do
-  host = Controls::Settings.hostname
+  host = Controls::Settings::Cluster.hostname
 
   settings = Controls::Settings.example host: host, read_timeout: 0.1, open_timeout: 0.1
   connect = EventSource::EventStore::HTTP::Connect.build settings

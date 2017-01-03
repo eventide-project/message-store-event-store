@@ -5,6 +5,11 @@ module EventSource
         class GetLeader
           include Log::Dependency
 
+          LOCALHOST = 'localhost'
+          LOOPBACK_ADDRESS = '127.0.0.1'
+
+          configure :get_leader
+
           dependency :connect, Connect
           dependency :get_status, GetStatus
           dependency :resolve_host, DNS::ResolveHost
@@ -32,7 +37,11 @@ module EventSource
           def call
             logger.trace(tag: :get_leader) { "Getting cluster leader (Host: #{host.inspect})" }
 
-            ip_addresses = resolve_host.(host)
+            if host == LOCALHOST
+              ip_addresses = [LOOPBACK_ADDRESS]
+            else
+              ip_addresses = resolve_host.(host)
+            end
 
             if ip_addresses.count == 1
               ip_address = ip_addresses[0]
