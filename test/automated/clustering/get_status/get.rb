@@ -1,4 +1,4 @@
-require_relative '../automated_init'
+require_relative '../../automated_init'
 
 context "Get Cluster Status From Gossip Endpoint" do
   ip_address = Controls::Settings::Cluster::IPAddress.example
@@ -6,7 +6,7 @@ context "Get Cluster Status From Gossip Endpoint" do
   settings = Controls::Settings.example ip_address: ip_address
   connect = EventSource::EventStore::HTTP::Connect.build settings
 
-  get = EventSource::EventStore::HTTP::ClusterStatus::Get.build connect
+  get = EventSource::EventStore::HTTP::Clustering::GetStatus.build connect
 
   cluster_status = get.()
 

@@ -1,8 +1,8 @@
-require_relative '../automated_init'
+require_relative '../../automated_init'
 
 context "Get Cluster Status Build Method" do
   context "Connect dependency" do
-    get_cluster_status = EventSource::EventStore::HTTP::ClusterStatus::Get.build
+    get_cluster_status = EventSource::EventStore::HTTP::Clustering::GetStatus.build
 
     test "Global settings are used" do
       global_settings = EventSource::EventStore::HTTP::Settings.instance

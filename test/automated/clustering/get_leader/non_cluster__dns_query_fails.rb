@@ -1,10 +1,10 @@
-require_relative '../automated_init'
+require_relative '../../automated_init'
 
 context "Get Leader, Non-Clustered EventStore Where DNS Query Fails" do
   settings = Controls::Settings::NonCluster.example
   connect = EventSource::EventStore::HTTP::Connect.build settings
 
-  get_leader = EventSource::EventStore::HTTP::GetLeader.build connect
+  get_leader = EventSource::EventStore::HTTP::Clustering::GetLeader.build connect
 
   SubstAttr::Substitute.(:resolve_host, get_leader)
 

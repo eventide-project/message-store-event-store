@@ -1,11 +1,11 @@
 module EventSource
   module EventStore
     module HTTP
-      module ClusterStatus
-        class Get
+      module Clustering
+        class GetStatus
           include Log::Dependency
 
-          configure :get_cluster_status
+          configure :get_status
 
           dependency :connect, Connect
 

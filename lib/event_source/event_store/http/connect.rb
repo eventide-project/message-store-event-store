@@ -11,12 +11,13 @@ module EventSource
         setting :read_timeout
         setting :open_timeout
 
-        def self.build(settings=nil, namespace: nil)
+        def self.build(settings=nil, namespace: nil, host: nil)
           settings ||= Settings.instance
           namespace = Array(namespace)
 
           instance = new
           settings.set instance, *namespace, strict: true
+          instance.host = host if host
           instance
         end
 

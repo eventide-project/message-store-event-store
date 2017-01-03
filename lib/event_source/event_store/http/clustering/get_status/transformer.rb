@@ -1,8 +1,8 @@
 module EventSource
   module EventStore
     module HTTP
-      module ClusterStatus
-        class Get
+      module Clustering
+        class GetStatus
           module Transformer
             def self.json
               JSON

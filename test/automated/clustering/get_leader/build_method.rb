@@ -1,8 +1,8 @@
-require_relative '../automated_init'
+require_relative '../../automated_init'
 
 context "Get Leader Build Method" do
   context "Connect dependency" do
-    get_leader = EventSource::EventStore::HTTP::GetLeader.build
+    get_leader = EventSource::EventStore::HTTP::Clustering::GetLeader.build
 
     test "Global settings are used" do
       global_settings = EventSource::EventStore::HTTP::Settings.instance
@@ -24,7 +24,7 @@ context "Get Leader Build Method" do
     settings = Controls::Settings.example host: host
     connect = EventSource::EventStore::HTTP::Connect.build settings
 
-    get_leader = EventSource::EventStore::HTTP::GetLeader.build connect
+    get_leader = EventSource::EventStore::HTTP::Clustering::GetLeader.build connect
 
     test "Value is set to that of connect dependency" do
       assert get_leader.host == host
