@@ -55,27 +55,7 @@ module EventSource
         end
 
         def call(request, &probe)
-          log_attributes = "Path: #{request.path}, MediaType: #{request['Content-Type'] || '(none)'}, ContentLength: #{request.body&.bytesize.to_i}, Accept: #{request['Accept'] || '(none)'}"
-
-          logger.trace(tag: :http) { "Issuing #{request.method} request (#{log_attributes})" }
-
-          if request.request_body_permitted?
-            if request.body.empty?
-              logger.trace(tags: [:data]) { "Request: (none)'" }
-            else
-              logger.trace(tags: [:data]) { "Request:\n\n#{request.body}" }
-            end
-          end
-
-          response = connection.request request
-
-          if request.response_body_permitted?
-            if response.body.empty?
-              logger.debug(tags: [:data]) { "Response: (none)" }
-            else
-              logger.debug(tags: [:data]) { "Response:\n\n#{response.body}" }
-            end
-          end
+          response = request(request)
 
           telemetry_data = Telemetry::HTTPRequest.new(
             request.method,
@@ -94,6 +74,46 @@ module EventSource
           telemetry.record :http_request, telemetry_data
 
           probe.(response) if probe
+
+          response
+        end
+
+        def request(request, redirect: nil)
+          redirect ||= false
+
+          log_attributes = "Path: #{request.path}, Host: #{connection.address}, MediaType: #{request['Content-Type'] || '(none)'}, ContentLength: #{request.body&.bytesize.to_i}, Accept: #{request['Accept'] || '(none)'}, Redirect: #{redirect}"
+
+          logger.trace(tags: :http) { "Issuing #{request.method} request (#{log_attributes})" }
+
+          if request.request_body_permitted?
+            if request.body.nil? || request.body.empty?
+              logger.trace(tag: :data) { "Request: (none)'" }
+            else
+              logger.trace(tag: :data) { "Request:\n\n#{request.body}" }
+            end
+          end
+
+          response = connection.request request
+
+          if Net::HTTPRedirection === response && !redirect
+            logger.debug(tags: :http) { "#{request.method} request received redirect response (#{log_attributes}, StatusCode: #{response.code}, ReasonPhrase: #{response.message}, RedirectLocation: #{response['Location'] || '(none)'})" }
+
+            location = URI.parse response['Location']
+
+            self.connection = connect.(location.host)
+
+            return request(request, redirect: true)
+          end
+
+          logger.trace(tags: :http) { "#{request.method} request issued (#{log_attributes}, StatusCode: #{response.code}, ReasonPhrase: #{response.message})" }
+
+          if request.response_body_permitted?
+            if response.body.empty?
+              logger.debug(tag: :data) { "Response: (none)" }
+            else
+              logger.debug(tag: :data) { "Response:\n\n#{response.body}" }
+            end
+          end
 
           response
         end

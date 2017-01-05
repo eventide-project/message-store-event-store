@@ -12,8 +12,7 @@ module EventSource
 
             record :http_request
 
-            record :get
-            record :post
+            record :redirected
 
             def leader_status_query_successful?
               recorded_leader_status_queried? do |record|
@@ -43,21 +42,7 @@ module EventSource
             :content_type
           )
 
-          Get = Struct.new(
-            :path,
-            :status_code,
-            :reason_phrase,
-            :response_body,
-            :acceptable_media_type
-          )
-
-          Post = Struct.new(
-            :path,
-            :status_code,
-            :reason_phrase,
-            :request_body,
-            :content_type
-          )
+          Redirected = Struct.new :requested_path, :redirect_uri
         end
       end
     end
