@@ -4,6 +4,8 @@ module EventSource
       class Request
         include Log::Dependency
 
+        configure :request
+
         dependency :session, Session
 
         def self.build(session: nil)
@@ -13,6 +15,12 @@ module EventSource
         end
 
         abstract :call
+
+        abstract :media_type
+
+        def headers
+          @headers ||= {}
+        end
       end
     end
   end

@@ -42,6 +42,8 @@ module EventSource
           LeaderStatusQueried = Struct.new :leader_status, :error
 
           HTTPRequest = Struct.new(
+            :request,
+            :response,
             :action,
             :path,
             :status_code,
@@ -55,6 +57,8 @@ module EventSource
           class HTTPRequest
             def self.build(request, response)
               instance = new(
+                request,
+                response,
                 request.method,
                 request.path,
                 response.code.to_i,

@@ -90,7 +90,7 @@ module EventSource
 
             rescue ::EventStore::Clustering::GossipEndpoint::Get::NonClusterError => error
               leader_status_queried_telemetry.error = error
-              logger.warn { "Could not determine cluster leader (#{LogText.establish_connection self, leader_ip_address}, Error: #{error.class})" }
+              logger.warn { "Could not determine cluster leader (#{LogText.establishing_connection self, leader_ip_address}, Error: #{error.class})" }
             end
 
             telemetry.record :leader_status_queried, leader_status_queried_telemetry

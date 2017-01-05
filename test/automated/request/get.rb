@@ -1,16 +1,14 @@
 require_relative '../automated_init'
 
 context "Get Request" do
+  get = EventSource::EventStore::HTTP::Request::Get.build
+
   stream_name = Controls::Write.()
 
   path = Controls::URI::Path::Stream.example stream_name: stream_name
 
-  request = EventSource::EventStore::HTTP::Request::Get.build
-
   context "HTTP request is successful" do
-    media_type = Controls::MediaType.stream
-
-    status_code, response_body = request.(path, media_type)
+    status_code, response_body = get.(path)
 
     test "Status code returned indicates GET was successful" do
       assert status_code == 200
@@ -24,12 +22,10 @@ context "Get Request" do
   end
 
   context "HTTP request is unsuccessful" do
-    media_type = Controls::MediaType.unknown
-
-    status_code, response_body = request.(path, media_type)
+    status_code, response_body = get.('/not-a-path')
 
     test "Status code returned indicates GET failed" do
-      assert status_code == 406
+      assert status_code == 404
     end
 
     test "No response body is returned" do
