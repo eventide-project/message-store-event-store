@@ -4,118 +4,68 @@ module EventSource
       class Session
         include Log::Dependency
 
+        extend Build
+        extend Configure
+        extend Telemetry::RegisterSink
+
         attr_writer :connection
         attr_writer :disable_leader_detection
+
+        def disable_leader_detection
+          if @disable_leader_detection.nil?
+            @disable_leader_detection = Defaults.disable_leader_detection
+          end
+
+          @disable_leader_detection
+        end
 
         dependency :connect, ::EventStore::HTTP::Connect
         dependency :get_leader_status, ::EventStore::Clustering::GetLeaderStatus
         dependency :telemetry, ::Telemetry
 
-        setting :host
-        setting :port
+        attr_accessor :host
+        attr_accessor :port
 
-        def self.build(settings=nil, namespace: nil)
-          instance = new
+        def call(request, redirect: nil, &probe)
+          redirect ||= false
 
-          connect = ::EventStore::HTTP::Connect.configure(
-            instance,
-            settings,
-            namespace: namespace
-          )
+          logger.trace(tags: :http) { "Issuing #{request.method} request (#{LogText.request_attributes request})" }
+          logger.trace(tag: :data) { LogText.request_body request } if request.request_body_permitted?
 
-          instance.host = connect.host
-          instance.port = connect.port
+          response = connection.request request
 
-          ::EventStore::Clustering::GetLeaderStatus.configure instance, connect
+          if Net::HTTPRedirection === response && !redirect
+            logger.debug(tags: :http) { "#{request.method} request received redirect response (#{LogText.request_attributes request}, #{LogText.response_attributes response}, Location: #{response['Location'] || '(none)'})" }
 
-          ::Telemetry.configure instance
+            location = URI.parse response['Location']
+            leader_ip_address = location.host
 
-          instance
-        end
+            telemetry.record :redirected, Telemetry::Redirected.new(request.path, connection.address, location)
 
-        def self.configure(receiver, settings=nil, namespace: nil, session: nil, attr_name: nil)
-          attr_name ||= :session
+            establish_connection leader_ip_address
 
-          if session.nil?
-            instance = build settings, namespace: namespace
-          else
-            instance = session
+            request['Host'] = nil
+            response = self.(request, redirect: true)
+
+            return response
           end
 
-          receiver.public_send "#{attr_name}=", instance
-          instance
-        end
+          logger.trace(tags: :http) { "#{request.method} request issued (#{LogText.request_attributes request}, #{LogText.response_attributes response})" }
+          logger.trace(tag: :data) { LogText.response_body response }
 
-        def self.register_telemetry_sink(instance)
-          sink = Telemetry::Sink.new
-
-          instance.telemetry.register sink
-
-          sink
-        end
-
-        def call(request, &probe)
-          response = request(request)
-
-          telemetry_data = Telemetry::HTTPRequest.new(
-            request.method,
-            request.path,
-            response.code.to_i,
-            response.message,
-            response.body,
-            request['Accept']
-          )
-
-          if request.request_body_permitted?
-            telemetry_data.request_body = request.body
-            telemetry_data.content_type = request['Content-Type']
-          end
-
-          telemetry.record :http_request, telemetry_data
+          telemetry.record :http_request, Telemetry::HTTPRequest.build(request, response)
 
           probe.(response) if probe
 
           response
         end
 
-        def request(request, redirect: nil)
-          redirect ||= false
+        def connection
+          @connection ||= establish_connection
+        end
 
-          log_attributes = "Path: #{request.path}, Host: #{connection.address}, MediaType: #{request['Content-Type'] || '(none)'}, ContentLength: #{request.body&.bytesize.to_i}, Accept: #{request['Accept'] || '(none)'}, Redirect: #{redirect}"
-
-          logger.trace(tags: :http) { "Issuing #{request.method} request (#{log_attributes})" }
-
-          if request.request_body_permitted?
-            if request.body.nil? || request.body.empty?
-              logger.trace(tag: :data) { "Request: (none)'" }
-            else
-              logger.trace(tag: :data) { "Request:\n\n#{request.body}" }
-            end
-          end
-
-          response = connection.request request
-
-          if Net::HTTPRedirection === response && !redirect
-            logger.debug(tags: :http) { "#{request.method} request received redirect response (#{log_attributes}, StatusCode: #{response.code}, ReasonPhrase: #{response.message}, RedirectLocation: #{response['Location'] || '(none)'})" }
-
-            location = URI.parse response['Location']
-
-            self.connection = connect.(location.host)
-
-            return request(request, redirect: true)
-          end
-
-          logger.trace(tags: :http) { "#{request.method} request issued (#{log_attributes}, StatusCode: #{response.code}, ReasonPhrase: #{response.message})" }
-
-          if request.response_body_permitted?
-            if response.body.empty?
-              logger.debug(tag: :data) { "Response: (none)" }
-            else
-              logger.debug(tag: :data) { "Response:\n\n#{response.body}" }
-            end
-          end
-
-          response
+        def connected?
+          !@connection.nil?
         end
 
         def close
@@ -124,54 +74,37 @@ module EventSource
           self.connection = nil
         end
 
-        def connected?
-          !@connection.nil?
-        end
+        def establish_connection(leader_ip_address=nil)
+          logger.trace { "Establishing connection to EventStore (#{LogText.establishing_connection self, leader_ip_address})" }
 
-        def connection
-          @connection ||= establish_connection
-        end
+          close if connected?
 
-        def establish_connection
-          logger.trace { "Establishing connection to EventStore (Host: #{host}, Port: #{port})" }
-
-          unless disable_leader_detection
-            telemetry_record = Telemetry::LeaderStatusQueried.new
+          unless leader_ip_address || disable_leader_detection
+            leader_status_queried_telemetry = Telemetry::LeaderStatusQueried.new
 
             begin
               leader_status = get_leader_status.()
+              leader_ip_address = leader_status.http_ip_address
 
-              telemetry_record.leader_status = leader_status
+              leader_status_queried_telemetry.leader_status = leader_status
 
             rescue ::EventStore::Clustering::GossipEndpoint::Get::NonClusterError => error
-              telemetry_record.error = error
-              logger.warn { "Could not determine cluster leader (Host: #{host}, Port: #{port}, Error: #{error.class})" }
+              leader_status_queried_telemetry.error = error
+              logger.warn { "Could not determine cluster leader (#{LogText.establish_connection self, leader_ip_address}, Error: #{error.class})" }
             end
 
-            telemetry.record :leader_status_queried, telemetry_record
+            telemetry.record :leader_status_queried, leader_status_queried_telemetry
           end
 
-          if leader_status
-            connection = connect.(leader_status.http_ip_address)
-          else
-            connection = connect.()
-          end
+          connection = connect.(leader_ip_address)
 
-          data = Telemetry::ConnectionEstablished.new host, port, connection
+          telemetry.record :connection_established, Telemetry::ConnectionEstablished.new(leader_ip_address || host, port, connection)
 
-          telemetry.record :connection_established, data
-
-          logger.trace { "Connection to EventStore established (Host: #{host}, Port: #{port}, LeaderIPAddress: #{leader_status&.http_ip_address || '(not detected)'})" }
+          logger.debug { "Connection to EventStore established (#{LogText.connection_established self, leader_ip_address})" }
 
           self.connection = connection
-        end
 
-        def disable_leader_detection
-          if @disable_leader_detection.nil?
-            @disable_leader_detection = Defaults.disable_leader_detection
-          end
-
-          @disable_leader_detection
+          connection
         end
       end
     end

@@ -27,6 +27,16 @@ module EventSource
             end
           end
 
+          module RegisterSink
+            def register_telemetry_sink(instance)
+              sink = Telemetry::Sink.new
+
+              instance.telemetry.register sink
+
+              sink
+            end
+          end
+
           ConnectionEstablished = Struct.new :host, :port, :connection
 
           LeaderStatusQueried = Struct.new :leader_status, :error
@@ -42,7 +52,27 @@ module EventSource
             :content_type
           )
 
-          Redirected = Struct.new :requested_path, :redirect_uri
+          class HTTPRequest
+            def self.build(request, response)
+              instance = new(
+                request.method,
+                request.path,
+                response.code.to_i,
+                response.message,
+                response.body,
+                request['Accept']
+              )
+
+              if request.request_body_permitted?
+                instance.request_body = request.body
+                instance.content_type = request['Content-Type']
+              end
+
+              instance
+            end
+          end
+
+          Redirected = Struct.new :requested_path, :origin_host, :redirect_uri
         end
       end
     end

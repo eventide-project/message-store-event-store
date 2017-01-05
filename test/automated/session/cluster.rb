@@ -26,5 +26,9 @@ context "Session Connects To EventStore Cluster" do
     test "Leader status query did not fail" do
       refute telemetry_sink.leader_status_query_failed?
     end
+
+    test "Connection is established" do
+      assert telemetry_sink.recorded_connection_established?
+    end
   end
 end

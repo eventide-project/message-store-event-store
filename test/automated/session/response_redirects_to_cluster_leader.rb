@@ -15,7 +15,7 @@ context "Session Performs Request Whose Response Redirects To Leader" do
   response = session.(request)
 
   test "Response is successful" do
-    assert response.code == Net::HTTPOK
+    assert response.code == '201'
   end
 
   test "Session follows redirect" do
@@ -33,7 +33,7 @@ context "Session Performs Request Whose Response Redirects To Leader" do
   test "New connection is established with leader" do
     assert telemetry_sink do
       recorded_connection_established? do |record|
-        record.host == leader_ip_address
+        record.data.host == leader_ip_address
       end
     end
   end
