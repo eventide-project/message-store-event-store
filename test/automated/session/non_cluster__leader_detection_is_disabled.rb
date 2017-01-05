@@ -1,11 +1,12 @@
 require_relative '../automated_init'
 
-context "Session, Leader Detection Is Disabled" do
-  session = EventSource::EventStore::HTTP::Session.build disable_leader_detection: true
+context "Session Connects To Non-Clustered EventStore, Leader Detection Is Disabled" do
+  session = EventSource::EventStore::HTTP::Session.build
+  session.disable_leader_detection = true
 
   telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink session
 
-  connection = session.connection
+  connection = session.establish_connection
 
   test "Connection is established" do
     assert connection do

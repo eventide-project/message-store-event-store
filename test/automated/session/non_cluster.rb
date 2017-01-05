@@ -1,14 +1,15 @@
 require_relative '../automated_init'
 
-context "Session Connects To EventStore (Non-Cluster)" do
+context "Session Connects To Non-Clustered EventStore" do
   settings = Controls::Settings.example
   settings.data.read_timeout = 0.1
 
   session = EventSource::EventStore::HTTP::Session.build settings
+  session.disable_leader_detection = false
 
   telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink session
 
-  connection = session.connection
+  connection = session.establish_connection
 
   test "Connection is established" do
     assert connection.address == Controls::IPAddress.example

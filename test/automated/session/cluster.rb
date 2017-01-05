@@ -4,10 +4,11 @@ context "Session Connects To EventStore Cluster" do
   settings = Controls::Settings::Cluster.example
 
   session = EventSource::EventStore::HTTP::Session.build settings
+  session.disable_leader_detection = false
 
   telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink session
 
-  connection = session.connection
+  connection = session.establish_connection
 
   test "Connection is established with cluster leader" do
     assert connection.address == Controls::IPAddress::Cluster::Leader.get
