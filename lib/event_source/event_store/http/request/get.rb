@@ -15,8 +15,19 @@ module EventSource
 
             response = session.(request, &probe)
 
+            log_attributes << ", StatusCode: #{response.code}, ReasonPhrose: #{response.message}"
+
             status_code = response.code.to_i
-            response_body = response.body if (200..399).include? status_code
+
+            if (200..399).include? status_code
+              response_body = response.body
+            elsif status_code == 404
+              logger.warn "Get query failed, resource not found (#{log_attributes})"
+            else
+              error_message = "Get command failed (#{log_attributes})"
+              logger.error error_message
+              raise Error, error_message
+            end
 
             logger.debug { "GET request done (#{log_attributes}, StatusCode: #{status_code})" }
 
@@ -30,6 +41,8 @@ module EventSource
           def media_type
             MediaTypes.vnd_event_store_atom_json
           end
+
+          Error = Class.new StandardError
 
           module Defaults
             def self.long_poll_duration
