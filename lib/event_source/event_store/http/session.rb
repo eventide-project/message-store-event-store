@@ -7,7 +7,7 @@ module EventSource
         attr_writer :connection
 
         dependency :connect, ::EventStore::HTTP::Connect
-        dependency :get_leader, ::EventStore::Clustering::GetLeader
+        dependency :get_leader_status, ::EventStore::Clustering::GetLeaderStatus
         dependency :telemetry, ::Telemetry
 
         setting :disable_leader_detection
@@ -23,7 +23,7 @@ module EventSource
             namespace: namespace
           )
 
-          ::EventStore::Clustering::GetLeader.configure instance, connect
+          ::EventStore::Clustering::GetLeaderStatus.configure instance, connect
 
           ::Telemetry.configure instance
 
@@ -49,7 +49,7 @@ module EventSource
             telemetry_record = Telemetry::LeaderStatusQueried.new
 
             begin
-              leader_status = get_leader.()
+              leader_status = get_leader_status.()
 
               telemetry_record.leader_status = leader_status
 
