@@ -24,13 +24,41 @@ context "Post Request, Expected Version" do
   end
 
   context "Expected version is set" do
-    expected_version = 11
+    expected_version = Controls::ExpectedVersion::NoStream.example
 
     path = Controls::URI::Path::Stream.example randomize_category: true
 
     telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink post.session
 
-    post.(path, request_body, expected_version: expected_version)
+    status_code = post.(path, request_body, expected_version: expected_version)
+
+    test "Request is successful" do
+      assert (200..299).include?(status_code)
+    end
+
+    test "Request includes ES-ExpectedVersion header" do
+      assert telemetry_sink do
+        recorded_http_request? do |record|
+          request = record.data.request
+
+          request['ES-ExpectedVersion'] == expected_version.to_s
+        end
+      end
+    end
+  end
+
+  context "Expected version does not match database" do
+    expected_version = Controls::ExpectedVersion.example
+
+    path = Controls::URI::Path::Stream.example randomize_category: true
+
+    telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink post.session
+
+    test "Expected version error is raised" do
+      assert proc { post.(path, request_body, expected_version: expected_version) } do
+        raises_error? EventSource::EventStore::HTTP::Request::Post::ExpectedVersionError
+      end
+    end
 
     test "Request includes ES-ExpectedVersion header" do
       assert telemetry_sink do

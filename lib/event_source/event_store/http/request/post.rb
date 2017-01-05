@@ -21,6 +21,26 @@ module EventSource
 
             status_code = response.code.to_i
 
+            log_attributes << ", StatusCode: #{status_code}, ReasonPhrase: #{response.message}"
+
+            unless (200..299).include? status_code
+              if expected_version_error? response
+                error_message = "Wrong expected version number (#{log_attributes})"
+                error_type = ExpectedVersionError
+              end
+
+              if write_timeout_error? response
+                error_message = "Write timeout (#{log_attributes})"
+                error_type = WriteTimeoutError
+              end
+
+              error_message ||= "Post command failed (#{log_attributes})"
+              error_type ||= Error
+
+              logger.error error_message
+              raise error_type, error_message
+            end
+
             logger.debug { "GET request done (#{log_attributes}, StatusCode: #{status_code})" }
 
             return status_code
@@ -33,6 +53,18 @@ module EventSource
           def media_type
             MediaTypes.vnd_event_store_events_json
           end
+
+          def expected_version_error?(response)
+            response.code == '400' && response.message == 'Wrong expected EventNumber'
+          end
+
+          def write_timeout_error?(response)
+            response.code == '500' && response.message == 'Write timeout'
+          end
+
+          Error = Class.new StandardError
+          ExpectedVersionError = Class.new Error
+          WriteTimeoutError = Class.new Error
         end
       end
     end
