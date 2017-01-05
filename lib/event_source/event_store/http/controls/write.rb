@@ -6,10 +6,6 @@ module EventSource
           def self.call(event_count=nil, data: nil, metadata: nil, stream_name: nil, type: nil, settings: nil)
             event_count ||= 1
             stream_name ||= StreamName.example
-            settings ||= EventSource::EventStore::HTTP::Settings.instance
-
-            host = settings.get :host
-            port = settings.get :port
 
             event_data = EventData::Write.example(
               type: type,
@@ -17,7 +13,7 @@ module EventSource
               metadata: metadata
             )
 
-            Net::HTTP.start host, port do |http|
+            ::EventStore::HTTP::Connect.() do |http|
               event_datum = (0...event_count).map do
                 event_id = Identifier::UUID::Random.get
 
