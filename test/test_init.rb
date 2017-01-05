@@ -12,4 +12,4 @@ require 'pp'
 
 Controls = EventSource::EventStore::HTTP::Controls
 
-Net::HTTP.send :const_set, :Assertions, EventSource::EventStore::HTTP::Connect::NetHTTP::Assertions
+Net::HTTP.send :const_set, :Assertions, EventStore::HTTP::Connect::NetHTTP::Assertions

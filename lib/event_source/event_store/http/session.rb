@@ -6,37 +6,25 @@ module EventSource
 
         attr_writer :connection
 
-        dependency :connect, Connect
-        dependency :get_leader, Clustering::GetLeader
+        dependency :connect, ::EventStore::HTTP::Connect
+        dependency :get_leader, ::EventStore::Clustering::GetLeader
 
-        def self.build
+        def self.build(settings=nil, namespace: nil)
           instance = new
 
-          connect = Connect.configure instance
+          connect = ::EventStore::HTTP::Connect.configure(
+            instance,
+            settings,
+            namespace: namespace
+          )
 
-          Clustering::GetLeader.configure instance, connect
-
-          instance.reconnect
+          ::EventStore::Clustering::GetLeader.configure instance, connect
 
           instance
         end
 
-        def active?
-          connection.active?
-        end
-
-        def close
-          connection.finish
-        end
-
         def connection
-          @connection || reconnect
-        end
-
-        def reconnect(ip_address=nil)
-          ip_address ||= get_leader.()
-
-          self.connection = connect.(ip_address)
+          @connection ||= connect.()
         end
       end
     end
