@@ -7,7 +7,7 @@ context "Session Connects To EventStore Cluster" do
 
   connection = session.connection
 
-  test "Connection is made to cluster leader" do
+  test "Connection is established with cluster leader" do
     assert connection.address == Controls::IPAddress::Cluster::Leader.get
   end
 end

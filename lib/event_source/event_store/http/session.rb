@@ -24,7 +24,16 @@ module EventSource
         end
 
         def connection
-          @connection ||= connect.()
+          @connection ||= establish_connection
+        end
+
+        def establish_connection
+          leader_status = get_leader.()
+
+          connect.(leader_status.http_ip_address)
+
+        rescue ::EventStore::Clustering::GossipEndpoint::Get::NonClusterError
+          connect.()
         end
       end
     end

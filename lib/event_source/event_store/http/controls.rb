@@ -8,4 +8,5 @@ require 'event_source/event_store/http/controls/resolve_host'
 
 require 'event_source/event_store/http/controls/ip_address/cluster'
 
+require 'event_source/event_store/http/controls/settings'
 require 'event_source/event_store/http/controls/settings/cluster'
