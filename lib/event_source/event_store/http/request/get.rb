@@ -31,7 +31,7 @@ module EventSource
 
             logger.debug { "GET request done (#{log_attributes}, StatusCode: #{status_code})" }
 
-            return status_code, response_body
+            return response_body, status_code
           end
 
           def enable_long_poll

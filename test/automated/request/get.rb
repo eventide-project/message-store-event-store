@@ -8,7 +8,7 @@ context "Get Request" do
   path = Controls::URI::Path::Stream.example stream_name: stream_name
 
   context "HTTP request is successful" do
-    status_code, response_body = get.(path)
+    response_body, status_code = get.(path)
 
     test "Status code returned indicates GET was successful" do
       assert status_code == 200
@@ -22,7 +22,7 @@ context "Get Request" do
   end
 
   context "HTTP request is unsuccessful" do
-    status_code, response_body = get.('/not-a-path')
+    response_body, status_code = get.('/not-a-path')
 
     test "Status code returned indicates GET failed" do
       assert status_code == 404
