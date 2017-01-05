@@ -5,15 +5,13 @@ module EventSource
         class Post < Request
           include Log::Dependency
 
-          def call(path, request_body, media_type, headers=nil, &probe)
+          def call(path, request_body, media_type, &probe)
             log_attributes = "Path: #{path}, ContentLength: #{request_body.bytesize}, MediaType: #{media_type}, Headers: #{headers.inspect}"
 
             logger.trace { "Performing GET request (#{log_attributes}" }
 
-            headers ||= {}
-            headers['Content-Type'] = media_type
-
-            request = Net::HTTP::Post.new path, headers
+            request = Net::HTTP::Post.new path
+            request['Content-Type'] = media_type
             request.body = request_body
 
             response = session.(request, &probe)

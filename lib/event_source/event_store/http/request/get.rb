@@ -5,15 +5,13 @@ module EventSource
         class Get < Request
           include Log::Dependency
 
-          def call(path, media_type, headers=nil, &probe)
+          def call(path, media_type, &probe)
             log_attributes = "Path: #{path}, MediaType: #{media_type}, Headers: #{headers.inspect}"
 
             logger.trace { "Performing GET request (#{log_attributes}" }
 
-            headers ||= {}
-            headers['Accept'] = media_type
-
             request = Net::HTTP::Get.new path, headers
+            request['Accept'] = media_type
 
             response = session.(request, &probe)
 
