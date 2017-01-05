@@ -10,7 +10,7 @@ context "Post Request" do
   context "Request is acceptable to EventStore" do
     media_type = Controls::MediaType.events
 
-    status_code = post.(path, request_body, media_type)
+    status_code = post.(path, media_type, request_body)
 
     test "Status code returned indicates POST was successful" do
       assert status_code == 201
@@ -20,7 +20,7 @@ context "Post Request" do
   context "Media type is unknown to EventStore" do
     media_type = Controls::MediaType.unknown
 
-    status_code = post.(path, request_body, media_type)
+    status_code = post.(path, media_type, request_body)
 
     test "Status code returned indicates POST was not accepted" do
       assert status_code == 400

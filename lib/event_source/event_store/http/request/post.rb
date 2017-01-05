@@ -5,7 +5,7 @@ module EventSource
         class Post < Request
           include Log::Dependency
 
-          def call(path, request_body, media_type, &probe)
+          def call(path, media_type, request_body, &probe)
             log_attributes = "Path: #{path}, ContentLength: #{request_body.bytesize}, MediaType: #{media_type}, Headers: #{headers.inspect}"
 
             logger.trace { "Performing GET request (#{log_attributes}" }
