@@ -170,6 +170,10 @@ module EventSource
             connection = connect.()
           end
 
+          data = Telemetry::ConnectionEstablished.new host, port, connection
+
+          telemetry.record :connection_established, data
+
           logger.trace { "Connection to EventStore established (Host: #{host}, Port: #{port}, LeaderIPAddress: #{leader_status&.http_ip_address || '(not detected)'})" }
 
           self.connection = connection

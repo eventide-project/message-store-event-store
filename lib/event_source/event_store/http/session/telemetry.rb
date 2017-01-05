@@ -6,9 +6,12 @@ module EventSource
           class Sink
             include ::Telemetry::Sink
 
+            record :connection_established
+
+            record :leader_status_queried
+
             record :get
             record :post
-            record :leader_status_queried
 
             def leader_status_query_successful?
               recorded_leader_status_queried? do |record|
@@ -22,6 +25,8 @@ module EventSource
               end
             end
           end
+
+          ConnectionEstablished = Struct.new :host, :port, :connection
 
           LeaderStatusQueried = Struct.new :leader_status, :error
 
