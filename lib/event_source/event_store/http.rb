@@ -1,5 +1,5 @@
 require 'event_source'
-require 'event_store/clustering'
+require 'event_store/cluster/leader_status'
 
 require 'event_source/event_store/http/log'
 require 'event_source/event_store/http/media_types'

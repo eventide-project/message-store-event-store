@@ -20,7 +20,7 @@ module EventSource
         end
 
         dependency :connect, ::EventStore::HTTP::Connect
-        dependency :get_leader_status, ::EventStore::Clustering::GetLeaderStatus
+        dependency :get_leader_status, ::EventStore::Cluster::LeaderStatus::Get
         dependency :telemetry, ::Telemetry
 
         attr_accessor :host
@@ -88,7 +88,7 @@ module EventSource
 
               leader_status_queried_telemetry.leader_status = leader_status
 
-            rescue ::EventStore::Clustering::GossipEndpoint::Get::NonClusterError => error
+            rescue ::EventStore::Cluster::LeaderStatus::GossipEndpoint::Get::NonClusterError => error
               leader_status_queried_telemetry.error = error
               logger.warn { "Could not determine cluster leader (#{LogText.establishing_connection self, leader_ip_address}, Error: #{error.class})" }
             end

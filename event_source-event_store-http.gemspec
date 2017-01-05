@@ -16,9 +16,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.3.3'
 
   s.add_runtime_dependency 'evt-event_source'
-  #s.add_runtime_dependency 'evt-event_store-clustering'
-    s.add_runtime_dependency 'evt-settings'
-    s.add_runtime_dependency 'evt-configure'
+  s.add_runtime_dependency 'evt-event_store-cluster-leader_status'
 
   s.add_development_dependency 'test_bench'
 end

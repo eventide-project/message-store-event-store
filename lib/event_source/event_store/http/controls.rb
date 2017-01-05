@@ -1,6 +1,6 @@
 require 'identifier/uuid/controls'
 require 'event_source/controls'
-require 'event_store/clustering/controls'
+require 'event_store/cluster/leader_status/controls'
 
 require 'event_source/event_store/http/controls/uuid'
 

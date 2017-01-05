@@ -5,7 +5,7 @@ module EventSource
         module Settings
           module Cluster
             def self.example
-              host = ::EventStore::Clustering::Controls::Hostname.example
+              host = ::EventStore::Cluster::LeaderStatus::Controls::Hostname.example
 
               HTTP::Settings.build({
                 :host => host

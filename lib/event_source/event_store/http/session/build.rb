@@ -15,7 +15,7 @@ module EventSource
             instance.host = connect.host
             instance.port = connect.port
 
-            ::EventStore::Clustering::GetLeaderStatus.configure instance, connect
+            ::EventStore::Cluster::LeaderStatus::Get.configure instance, connect
 
             ::Telemetry.configure instance
 
