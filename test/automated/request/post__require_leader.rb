@@ -12,6 +12,10 @@ context "Post Request, Require Leader" do
 
     post.(path, request_body)
 
+    test "Predicate returns false" do
+      refute post.leader_required?
+    end
+
     test "Request does not include ES-RequireMaster header" do
       assert telemetry_sink do
         recorded_http_request? do |record|
@@ -31,6 +35,10 @@ context "Post Request, Require Leader" do
     post.require_leader
 
     post.(path, request_body)
+
+    test "Predicate returns true" do
+      assert post.leader_required?
+    end
 
     test "Request includes ES-ExpectedVersion header" do
       assert telemetry_sink do

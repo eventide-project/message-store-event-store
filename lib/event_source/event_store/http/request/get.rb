@@ -38,6 +38,10 @@ module EventSource
             headers['ES-LongPoll'] = Defaults.long_poll_duration.to_s
           end
 
+          def long_poll_enabled?
+            headers.key? 'ES-LongPoll'
+          end
+
           def media_type
             MediaTypes.vnd_event_store_atom_json
           end

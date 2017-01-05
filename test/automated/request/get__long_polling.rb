@@ -12,6 +12,10 @@ context "Get Request, Long Polling" do
 
     get.(path)
 
+    test "Predicate returns false" do
+      refute get.long_poll_enabled?
+    end
+
     test "Request does not include ES-LongPoll header" do
       assert telemetry_sink do
         recorded_http_request? do |record|
@@ -30,6 +34,10 @@ context "Get Request, Long Polling" do
     telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink get.session
 
     get.(path)
+
+    test "Predicate returns true" do
+      assert get.long_poll_enabled?
+    end
 
     test "Request includes ES-LongPoll header" do
       assert telemetry_sink do

@@ -49,6 +49,10 @@ module EventSource
             headers['ES-RequireMaster'] = 'True'
           end
 
+          def leader_required?
+            headers.key? 'ES-RequireMaster'
+          end
+
           def media_type
             MediaTypes.vnd_event_store_events_json
           end
