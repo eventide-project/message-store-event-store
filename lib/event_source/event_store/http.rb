@@ -6,3 +6,4 @@ require 'event_source/event_store/http/media_types'
 require 'event_source/event_store/http/settings'
 
 require 'event_source/event_store/http/session'
+require 'event_source/event_store/http/session/telemetry'
