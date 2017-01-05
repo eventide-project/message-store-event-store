@@ -10,6 +10,8 @@ module EventSource
 
             record :leader_status_queried
 
+            record :http_request
+
             record :get
             record :post
 
@@ -29,6 +31,17 @@ module EventSource
           ConnectionEstablished = Struct.new :host, :port, :connection
 
           LeaderStatusQueried = Struct.new :leader_status, :error
+
+          HTTPRequest = Struct.new(
+            :action,
+            :path,
+            :status_code,
+            :reason_phrase,
+            :response_body,
+            :acceptable_media_type,
+            :request_body,
+            :content_type
+          )
 
           Get = Struct.new(
             :path,
