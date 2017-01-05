@@ -6,15 +6,14 @@ module EventSource
           include Log::Dependency
 
           def call(path, request_body, expected_version: nil, &probe)
-            log_attributes = "Path: #{path}, ContentLength: #{request_body.bytesize}, MediaType: #{media_type}, Headers: #{headers.inspect}"
+            expected_version = -1 if expected_version == Post.no_stream_version
 
+            log_attributes = "Path: #{path}, ContentLength: #{request_body.bytesize}, MediaType: #{media_type}, Headers: #{headers.inspect}"
             logger.trace { "Performing GET request (#{log_attributes}" }
 
             request = Net::HTTP::Post.new path, headers
-
             request['Content-Type'] = media_type
             request['ES-ExpectedVersion'] = expected_version.to_s if expected_version
-
             request.body = request_body
 
             response = session.(request, &probe)
@@ -65,6 +64,10 @@ module EventSource
           Error = Class.new StandardError
           ExpectedVersionError = Class.new Error
           WriteTimeoutError = Class.new Error
+
+          def self.no_stream_version
+            :no_stream
+          end
         end
       end
     end

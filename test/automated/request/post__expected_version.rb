@@ -24,7 +24,7 @@ context "Post Request, Expected Version" do
   end
 
   context "Expected version is set" do
-    expected_version = Controls::ExpectedVersion::NoStream.example
+    expected_version = Controls::ExpectedVersion::NoStream::Header.example
 
     path = Controls::URI::Path::Stream.example randomize_category: true
 
@@ -42,6 +42,26 @@ context "Post Request, Expected Version" do
           request = record.data.request
 
           request['ES-ExpectedVersion'] == expected_version.to_s
+        end
+      end
+    end
+  end
+
+  context "Expected version is set to :no_stream" do
+    expected_version = EventSource::EventStore::HTTP::Request::Post.no_stream_version
+
+    path = Controls::URI::Path::Stream.example randomize_category: true
+
+    telemetry_sink = EventSource::EventStore::HTTP::Session.register_telemetry_sink post.session
+
+    post.(path, request_body, expected_version: expected_version)
+
+    test "ES-ExpectedVersion header is set to -1" do
+      assert telemetry_sink do
+        recorded_http_request? do |record|
+          request = record.data.request
+
+          request['ES-ExpectedVersion'] == Controls::ExpectedVersion::NoStream::Header.example
         end
       end
     end

@@ -7,9 +7,21 @@ module EventSource
             11
           end
 
+          module Header
+            def self.example
+              '11'
+            end
+          end
+
           module NoStream
             def self.example
-              -1
+              :no_stream
+            end
+
+            module Header
+              def self.example
+                '-1'
+              end
             end
           end
         end
