@@ -13,6 +13,8 @@ module EventSource
         setting :disable_leader_detection
 
         def self.build(settings=nil, namespace: nil, disable_leader_detection: nil)
+          disable_leader_detection ||= Defaults.disable_leader_detection
+
           instance = new
 
           connect = ::EventStore::HTTP::Connect.configure(
