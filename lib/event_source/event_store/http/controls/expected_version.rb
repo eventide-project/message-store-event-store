@@ -15,12 +15,12 @@ module EventSource
 
           module NoStream
             def self.example
-              :no_stream
+              EventSource::NoStream.name
             end
 
             module Header
               def self.example
-                '-1'
+                EventSource::NoStream.version.to_s
               end
             end
           end

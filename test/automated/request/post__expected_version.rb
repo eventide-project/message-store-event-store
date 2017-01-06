@@ -24,7 +24,7 @@ context "Post Request, Expected Version" do
   end
 
   context "Expected version is set" do
-    expected_version = Controls::ExpectedVersion::NoStream::Header.example
+    expected_version = EventSource::NoStream.version
 
     path = Controls::URI::Path::Stream.example randomize_category: true
 
@@ -48,7 +48,7 @@ context "Post Request, Expected Version" do
   end
 
   context "Expected version is set to :no_stream" do
-    expected_version = EventSource::EventStore::HTTP::Request::Post.no_stream_version
+    expected_version = EventSource::NoStream.name
 
     path = Controls::URI::Path::Stream.example randomize_category: true
 
