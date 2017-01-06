@@ -6,28 +6,77 @@ module EventSource
           class Sink
             include ::Telemetry::Sink
 
-            record :connected
-            record :get
-            record :post
+            record :connection_established
+
+            record :leader_status_queried
+
+            record :http_request
+
+            record :redirected
+
+            def leader_status_query_successful?
+              recorded_leader_status_queried? do |record|
+                record.data.leader_status && record.data.error.nil?
+              end
+            end
+
+            def leader_status_query_failed?
+              recorded_leader_status_queried? do |record|
+                record.data.leader_status.nil? && record.data.error
+              end
+            end
           end
 
-          Connected = Struct.new :host, :port
+          module RegisterSink
+            def register_telemetry_sink(instance)
+              sink = Telemetry::Sink.new
 
-          Get = Struct.new(
+              instance.telemetry.register sink
+
+              sink
+            end
+          end
+
+          ConnectionEstablished = Struct.new :host, :port, :connection
+
+          LeaderStatusQueried = Struct.new :leader_status, :error
+
+          HTTPRequest = Struct.new(
+            :request,
+            :response,
+            :action,
             :path,
             :status_code,
             :reason_phrase,
             :response_body,
-            :acceptable_media_type
-          )
-
-          Post = Struct.new(
-            :path,
-            :status_code,
-            :reason_phrase,
+            :acceptable_media_type,
             :request_body,
             :content_type
           )
+
+          class HTTPRequest
+            def self.build(request, response)
+              instance = new(
+                request,
+                response,
+                request.method,
+                request.path,
+                response.code.to_i,
+                response.message,
+                response.body,
+                request['Accept']
+              )
+
+              if request.request_body_permitted?
+                instance.request_body = request.body
+                instance.content_type = request['Content-Type']
+              end
+
+              instance
+            end
+          end
+
+          Redirected = Struct.new :requested_path, :origin_host, :redirect_uri
         end
       end
     end

@@ -2,7 +2,7 @@ module EventSource
   module EventStore
     module HTTP
       module Controls
-        Category = EventSource::Controls::Category
+        ResolveHost = ::EventStore::HTTP::Connect::Controls::ResolveHost
       end
     end
   end

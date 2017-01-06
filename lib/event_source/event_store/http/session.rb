@@ -4,157 +4,107 @@ module EventSource
       class Session
         include Log::Dependency
 
-        dependency :net_http, NetHTTP
-        dependency :telemetry, ::Telemetry
+        extend Build
+        extend Configure
+        extend Telemetry::RegisterSink
 
-        def self.build(settings=nil, namespace: nil)
-          instance = new
+        attr_writer :connection
+        attr_writer :disable_leader_detection
 
-          ::Telemetry.configure instance
-          NetHTTP.configure instance, settings: settings, namespace: namespace
-
-          instance.connect
-
-          instance
-        end
-
-        def self.configure(receiver, settings=nil, namespace: nil, session: nil, attr_name: nil)
-          attr_name ||= :session
-
-          if session.nil?
-            instance = build settings, namespace: namespace
-          else
-            instance = session
+        def disable_leader_detection
+          if @disable_leader_detection.nil?
+            @disable_leader_detection = Defaults.disable_leader_detection
           end
 
-          receiver.public_send "#{attr_name}=", instance
-
-          instance
+          @disable_leader_detection
         end
 
-        def self.register_telemetry_sink(instance)
-          sink = Telemetry::Sink.new
+        dependency :connect, ::EventStore::HTTP::Connect
+        dependency :get_leader_status, ::EventStore::Cluster::LeaderStatus::Get
+        dependency :telemetry, ::Telemetry
 
-          instance.telemetry.register sink
+        attr_accessor :host
+        attr_accessor :port
 
-          sink
+        def call(request, redirect: nil, &probe)
+          redirect ||= false
+
+          logger.trace(tag: :event_store_http) { "Issuing #{request.method} request (#{LogText.request_attributes request})" }
+          logger.trace(tag: :data) { LogText.request_body request } if request.request_body_permitted?
+
+          response = connection.request request
+
+          if Net::HTTPRedirection === response && !redirect
+            logger.debug(tag: :event_store_http) { "#{request.method} request received redirect response (#{LogText.request_attributes request}, #{LogText.response_attributes response}, Location: #{response['Location'] || '(none)'})" }
+
+            location = URI.parse response['Location']
+            leader_ip_address = location.host
+
+            telemetry.record :redirected, Telemetry::Redirected.new(request.path, connection.address, location)
+
+            establish_connection leader_ip_address
+
+            request['Host'] = nil
+            response = self.(request, redirect: true)
+
+            return response
+          end
+
+          logger.trace(tag: :event_store_http) { "#{request.method} request issued (#{LogText.request_attributes request}, #{LogText.response_attributes response})" }
+          logger.trace(tag: :data) { LogText.response_body response }
+
+          telemetry.record :http_request, Telemetry::HTTPRequest.build(request, response)
+
+          probe.(response) if probe
+
+          response
         end
 
-        def connect
-          logger.trace(tag: [:http, :db_connection]) {
-            "Connecting to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
-          }
-
-          net_http.start
-
-          data = Telemetry::Connected.new host, port
-
-          telemetry.record :connected, data
-
-          logger.debug(tag: [:http, :db_connection]) {
-            "Connected to EventStore (Host: #{host.inspect}, Port: #{port.inspect})"
-          }
-
-          net_http
+        def connection
+          @connection ||= establish_connection
         end
 
         def connected?
-          net_http.started?
+          !@connection.nil?
         end
 
         def close
-          logger.trace(tag: [:http, :db_connection]) { "Closing connection to EventStore" }
+          connection.finish
 
-          net_http.finish
-
-          logger.debug(tag: [:http, :db_connection]) { "Connection to EventStore closed" }
-
-          net_http
+          self.connection = nil
         end
 
-        def get(path, media_type, headers=nil, &probe)
-          headers ||= {}
+        def establish_connection(leader_ip_address=nil)
+          logger.trace(tag: :event_store_connection) { "Establishing connection to EventStore (#{LogText.establishing_connection self, leader_ip_address})" }
 
-          logger.trace(tag: :http) {
-            "Issuing GET request (Path: #{path}, MediaType: #{media_type})"
-          }
+          close if connected?
 
-          headers['Accept'] = media_type
+          unless leader_ip_address || disable_leader_detection
+            leader_status_queried_telemetry = Telemetry::LeaderStatusQueried.new
 
-          response = net_http.request_get path, headers
+            begin
+              leader_status = get_leader_status.()
+              leader_ip_address = leader_status.http_ip_address
 
-          status_code = response.code.to_i
-          response_body = response.body if (200..399).include? status_code
+              leader_status_queried_telemetry.leader_status = leader_status
 
-          logger.debug(tag: :http) {
-            "GET request issued (Path: #{path}, MediaType: #{media_type}, StatusCode: #{status_code}, ReasonPhrase: #{response.message}, ContentLength: #{response_body&.bytesize.inspect})"
-          }
+            rescue ::EventStore::Cluster::LeaderStatus::GossipEndpoint::Get::NonClusterError => error
+              leader_status_queried_telemetry.error = error
+              logger.warn(tag: :event_store_connection) { "Could not determine cluster leader (#{LogText.establishing_connection self, leader_ip_address}, Error: #{error.class})" }
+            end
 
-          if response.body.empty?
-            logger.debug(tags: [:data]) { "Response: (none)" }
-          else
-            logger.debug(tags: [:data]) { "Response:\n\n#{response.body}" }
+            telemetry.record :leader_status_queried, leader_status_queried_telemetry
           end
 
-          probe.(response) if probe
+          connection = connect.(leader_ip_address)
 
-          data = Telemetry::Get.new(
-            path,
-            status_code,
-            response.message,
-            response.body,
-            media_type
-          )
+          telemetry.record :connection_established, Telemetry::ConnectionEstablished.new(leader_ip_address || host, port, connection)
 
-          telemetry.record :get, data
+          logger.info(tag: :event_store_connection) { "Connection to EventStore established (#{LogText.connection_established self, leader_ip_address})" }
 
-          return status_code, response_body
-        end
+          self.connection = connection
 
-        def post(path, request_body, media_type, headers=nil, &probe)
-          headers ||= {}
-          headers['Content-Type'] = media_type
-
-          logger.trace(tag: :http) {
-            "Issuing POST request (Path: #{path}, MediaType: #{media_type}, ContentLength: #{request_body.bytesize})"
-          }
-          logger.trace(tags: [:data]) { "Request:\n\n#{request_body}" }
-
-          response = net_http.request_post path, request_body, headers
-
-          status_code = response.code.to_i
-
-          logger.debug(tag: :http) {
-            "POST request issued (Path: #{path}, MediaType: #{media_type}, ContentLength: #{request_body.bytesize}, StatusCode: #{status_code}, ReasonPhrase: #{response.message})"
-          }
-
-          if response.body.empty?
-            logger.debug(tags: [:data]) { "Response: (none)" }
-          else
-            logger.debug(tags: [:data]) { "Response:\n\n#{response.body}" }
-          end
-
-          probe.(response) if probe
-
-          data = Telemetry::Post.new(
-            path,
-            status_code,
-            response.message,
-            request_body,
-            media_type
-          )
-
-          telemetry.record :post, data
-
-          status_code
-        end
-
-        def host
-          net_http.address
-        end
-
-        def port
-          net_http.port
+          connection
         end
       end
     end

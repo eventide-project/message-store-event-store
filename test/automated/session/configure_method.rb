@@ -5,18 +5,18 @@ context "Session Is Configured" do
     receiver = OpenStruct.new
 
     context "Attribute name is not specified" do
-      EventStore::HTTP::Session.configure receiver
+      EventSource::EventStore::HTTP::Session.configure receiver
 
       test "Session attribute is set" do
-        assert receiver.session.instance_of?(EventStore::HTTP::Session)
+        assert receiver.session.instance_of?(EventSource::EventStore::HTTP::Session)
       end
     end
 
     context "Attribute name is specified" do
-      EventStore::HTTP::Session.configure receiver, attr_name: :some_attr
+      EventSource::EventStore::HTTP::Session.configure receiver, attr_name: :some_attr
 
       test "Specified attribute is set" do
-        assert receiver.some_attr.instance_of?(EventStore::HTTP::Session)
+        assert receiver.some_attr.instance_of?(EventSource::EventStore::HTTP::Session)
       end
     end
 
@@ -25,7 +25,7 @@ context "Session Is Configured" do
 
       settings = Settings.build :some_namespace => { :host => 'example.com', :port => 80 }
 
-      EventStore::HTTP::Session.configure(
+      EventSource::EventStore::HTTP::Session.configure(
         receiver,
         settings,
         namespace: :some_namespace,
@@ -44,7 +44,7 @@ context "Session Is Configured" do
     context "Attribute name is not specified" do
       receiver = OpenStruct.new
 
-      EventStore::HTTP::Session.configure receiver, session: session
+      EventSource::EventStore::HTTP::Session.configure receiver, session: session
 
       test "Session attribute is set to specified session" do
         assert receiver.session == session
@@ -54,7 +54,7 @@ context "Session Is Configured" do
     context "Attribute name is specified" do
       receiver = OpenStruct.new
 
-      EventStore::HTTP::Session.configure receiver, session: session, attr_name: :some_attr
+      EventSource::EventStore::HTTP::Session.configure receiver, session: session, attr_name: :some_attr
 
       test "Specified attribute is set to specified session" do
         assert receiver.some_attr == session

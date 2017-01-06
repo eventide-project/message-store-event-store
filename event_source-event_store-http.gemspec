@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name = 'evt-event_source-event_store-http'
-  s.version = '0.1.1.0'
+  s.version = '0.2.0.0.pre3'
   s.summary = "Event source client for EventStore's HTTP interface"
   s.description = ' '
 
@@ -15,9 +15,8 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 2.3.3'
 
-  s.add_runtime_dependency 'evt-configure'
   s.add_runtime_dependency 'evt-event_source'
-  s.add_runtime_dependency 'evt-settings'
+  s.add_runtime_dependency 'evt-event_store-cluster-leader_status'
 
   s.add_development_dependency 'test_bench'
 end

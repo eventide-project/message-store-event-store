@@ -4,46 +4,36 @@ module EventSource
       class Session
         module Substitute
           def self.build
-            Session.build
+            Session.new
           end
 
-          class Session < Session
-            attr_accessor :telemetry_sink
+          Response = Struct.new :code, :message, :body
 
-            def self.build
-              instance = new
+          class Session
+            attr_writer :status_code
+            attr_writer :reason_phrase
+            attr_accessor :response_body
 
-              ::Telemetry.configure instance
-
-              instance.telemetry_sink = register_telemetry_sink instance
-
-              instance
+            def call(request)
+              response = Response.new
+              response.code = status_code.to_s
+              response.message = reason_phrase
+              response.body = response_body.to_s
+              response
             end
 
             def set_response(status_code, response_body=nil, reason_phrase: nil)
-              net_http.set_response(
-                status_code,
-                response_body,
-                reason_phrase: reason_phrase
-              )
+              self.status_code = status_code
+              self.reason_phrase = reason_phrase
+              self.response_body = response_body if response_body
             end
 
-            module Assertions
-              def get_request?(&block)
-                block ||= proc { true }
+            def status_code
+              @status_code ||= 404
+            end
 
-                telemetry_sink.recorded_get? do |record|
-                  block.(record.data)
-                end
-              end
-
-              def post_request?(&block)
-                block ||= proc { true }
-
-                telemetry_sink.recorded_post? do |record|
-                  block.(record.data)
-                end
-              end
+            def reason_phrase
+              @reason_phrase ||= 'Not found'
             end
           end
         end

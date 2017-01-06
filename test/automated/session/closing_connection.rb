@@ -1,11 +1,19 @@
 require_relative '../automated_init'
 
 context "Session Closes Connection" do
-  session = EventStore::HTTP::Session.build
+  session = EventSource::EventStore::HTTP::Session.build
 
-  previous_connection = session.close
+  connection = session.connection
 
-  test "Net::HTTP connection is terminated" do
-    refute previous_connection.started?
+  session.close
+
+  test "HTTP connection is terminated" do
+    refute connection.active?
+  end
+
+  test "New connection is established" do
+    next_connection = session.connection
+
+    assert next_connection.active?
   end
 end

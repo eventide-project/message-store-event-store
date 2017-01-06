@@ -2,27 +2,29 @@ require_relative '../automated_init'
 
 context "Session Is Built" do
   context do
-    session = EventStore::HTTP::Session.build
+    session = EventSource::EventStore::HTTP::Session.build
 
-    context "Net::HTTP session" do
-      net_http = session.net_http
+    test "Host is set" do
+      assert session.host == Controls::Hostname.example
+    end
 
-      test "Address is set to that of host value in settings" do
-        assert net_http.address == EventStore::HTTP::Settings.get(:host)
+    test "Port is set" do
+      assert session.port == Controls::Port.example
+    end
+
+    context "Net::HTTP connection" do
+      connection = session.connection
+
+      test "Address is set to the IP address of the EventStore service" do
+        assert connection.address == Controls::IPAddress.example
       end
 
       test "Port is set to that of port value in settings" do
-        assert net_http.port == EventStore::HTTP::Settings.get(:port)
+        assert connection.port == Controls::Port.example
       end
 
-      test "Read timeout is set to that of read timeout value in settings" do
-        assert net_http.read_timeout == EventStore::HTTP::Settings.get(:read_timeout)
-      end
-
-      test "Session is started" do
-        assert session.net_http do |net_http|
-          net_http.started?
-        end
+      test "Session is not yet active" do
+        assert connection.active?
       end
     end
   end
@@ -30,7 +32,7 @@ context "Session Is Built" do
   context "Settings object is specified" do
     settings = Settings.build :host => 'example.com', :port => 80
 
-    session = EventStore::HTTP::Session.build settings
+    session = EventSource::EventStore::HTTP::Session.build settings
 
     test "Host is set" do
       assert session.host == 'example.com'
@@ -44,7 +46,7 @@ context "Session Is Built" do
   context "Settings namespace is specified" do
     settings = Settings.build :some_namespace => { :host => 'example.com', :port => 80 }
 
-    session = EventStore::HTTP::Session.build settings, namespace: :some_namespace
+    session = EventSource::EventStore::HTTP::Session.build settings, namespace: :some_namespace
 
     test "Host is set" do
       assert session.host == 'example.com'
