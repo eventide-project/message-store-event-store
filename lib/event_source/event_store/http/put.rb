@@ -29,36 +29,40 @@ module EventSource
           sink
         end
 
-        def call(write_event, stream_name, expected_version: nil)
-          logger.trace { "Putting event data (StreamName: #{stream_name}, Type #{write_event.type}, ExpectedVersion: #{expected_version.inspect})" }
-          logger.trace(tags: [:data, :event_data]) { write_event.pretty_inspect }
+        def call(write_events, stream_name, expected_version: nil)
+          write_events = Array(write_events)
+
+          logger.trace { "Putting event data batch (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect})" }
+          logger.trace(tags: [:data, :event_data]) { write_events.pretty_inspect }
 
           path = stream_path stream_name
 
-          event_store_data = [
+          request_data = write_events.map do |write_event|
             {
               :event_id => uuid.get,
               :event_type => write_event.type,
               :data => write_event.data,
               :metadata => write_event.metadata
             }
-          ]
+          end
 
-          formatted_data = Casing::Camel.(event_store_data)
+          formatted_data = Casing::Camel.(request_data)
 
           json_text = JSON.pretty_generate formatted_data
 
-          location = nil
+          position = nil
 
-          request.(path, json_text, expected_version: expected_version) do |request, response|
+          response = request.(path, json_text, expected_version: expected_version) do |request|
             telemetry.record :post, Telemetry::Post.new(request, response)
 
             location = response['Location']
+            _, _, position = URI.parse(location).path.split '/'
+            position = location.to_i
           end
 
-          _, stream_name, position = URI.parse(location).path.split '/'
+          logger.debug { "Put event data batch done (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Position: #{position})" }
 
-          position.to_i
+          position
         end
 
         def stream_path(stream_name)
