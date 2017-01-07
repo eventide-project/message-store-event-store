@@ -9,7 +9,7 @@ module EventSource
             expected_version = EventSource::ExpectedVersion.canonize expected_version
 
             log_attributes = "Path: #{path}, ContentLength: #{request_body.bytesize}, MediaType: #{media_type}, Headers: #{headers.inspect}"
-            logger.trace { "Performing GET request (#{log_attributes}" }
+            logger.trace { "Performing POST request (#{log_attributes}" }
 
             request = Net::HTTP::Post.new path, headers
             request['Content-Type'] = media_type
@@ -40,7 +40,7 @@ module EventSource
               raise error_type, error_message
             end
 
-            logger.debug { "GET request done (#{log_attributes}, StatusCode: #{status_code})" }
+            logger.debug { "POST request done (#{log_attributes}, StatusCode: #{status_code})" }
 
             return status_code
           end
