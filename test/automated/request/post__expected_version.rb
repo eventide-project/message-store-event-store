@@ -76,7 +76,7 @@ context "Post Request, Expected Version" do
 
     test "Expected version error is raised" do
       assert proc { post.(path, request_body, expected_version: expected_version) } do
-        raises_error? EventSource::EventStore::HTTP::Request::Post::ExpectedVersionError
+        raises_error? EventSource::ExpectedVersion::Error
       end
     end
 

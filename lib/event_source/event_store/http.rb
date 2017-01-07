@@ -16,3 +16,6 @@ require 'event_source/event_store/http/session'
 require 'event_source/event_store/http/request'
 require 'event_source/event_store/http/request/get'
 require 'event_source/event_store/http/request/post'
+
+require 'event_source/event_store/http/put'
+require 'event_source/event_store/http/put/telemetry'

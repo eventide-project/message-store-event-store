@@ -16,7 +16,9 @@ module EventSource
             request['ES-ExpectedVersion'] = expected_version.to_s if expected_version
             request.body = request_body
 
-            response = session.(request, &probe)
+            response = session.(request)
+
+            probe.(request, response) if probe
 
             status_code = response.code.to_i
 
@@ -25,7 +27,7 @@ module EventSource
             unless (200..299).include? status_code
               if expected_version_error? response
                 error_message = "Wrong expected version number (#{log_attributes})"
-                error_type = ExpectedVersionError
+                error_type = EventSource::ExpectedVersion::Error
               end
 
               if write_timeout_error? response
@@ -66,7 +68,6 @@ module EventSource
           end
 
           Error = Class.new StandardError
-          ExpectedVersionError = Class.new EventSource::ExpectedVersion::Error
           WriteTimeoutError = Class.new Error
         end
       end

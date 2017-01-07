@@ -13,7 +13,9 @@ module EventSource
             request = Net::HTTP::Get.new path, headers
             request['Accept'] = media_type
 
-            response = session.(request, &probe)
+            response = session.(request)
+
+            probe.(request, response) if probe
 
             log_attributes << ", StatusCode: #{response.code}, ReasonPhrose: #{response.message}"
 
