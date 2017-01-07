@@ -66,7 +66,7 @@ module EventSource
           end
 
           Error = Class.new StandardError
-          ExpectedVersionError = Class.new Error
+          ExpectedVersionError = Class.new EventSource::ExpectedVersion::Error
           WriteTimeoutError = Class.new Error
         end
       end
