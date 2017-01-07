@@ -37,21 +37,28 @@ module EventSource
           if Net::HTTPRedirection === response && !redirect
             logger.debug(tag: :event_store_http) { "#{request.method} request received redirect response (#{LogText.request_attributes request}, #{LogText.response_attributes response}, Location: #{response['Location'] || '(none)'})" }
 
+            telemetry.record :redirected, Telemetry::Redirected.new(request.path, connection.address, response['Location'])
+
             location = URI.parse response['Location']
-            leader_ip_address = location.host
 
-            telemetry.record :redirected, Telemetry::Redirected.new(request.path, connection.address, location)
+            if request['ES-RequireMaster'] == 'true'
+              leader_ip_address = location.host
+              establish_connection leader_ip_address
+            end
 
-            establish_connection leader_ip_address
+            redirect_request = request.class.new location.path
+            request.each_header do |name, value|
+              redirect_request[name] = value unless name == 'host'
+            end
+            redirect_request.body = request.body if request.body
 
-            request['Host'] = nil
-            response = self.(request, redirect: true)
+            response = self.(redirect_request, redirect: true)
 
             return response
           end
 
-          logger.trace(tag: :event_store_http) { "#{request.method} request issued (#{LogText.request_attributes request}, #{LogText.response_attributes response})" }
-          logger.trace(tag: :data) { LogText.response_body response }
+          logger.debug(tag: :event_store_http) { "#{request.method} request issued (#{LogText.request_attributes request}, #{LogText.response_attributes response})" }
+          logger.debug(tag: :data) { LogText.response_body response }
 
           telemetry.record :http_request, Telemetry::HTTPRequest.build(request, response)
 

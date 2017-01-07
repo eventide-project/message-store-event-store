@@ -17,6 +17,7 @@ require 'event_source/event_store/http/controls/port'
 require 'event_source/event_store/http/controls/settings'
 require 'event_source/event_store/http/controls/settings/cluster'
 
+require 'event_source/event_store/http/controls/session/request/redirects'
 require 'event_source/event_store/http/controls/session/request/require_leader'
 require 'event_source/event_store/http/controls/session/request/write_event'
 
