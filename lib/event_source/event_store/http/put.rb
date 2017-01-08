@@ -4,6 +4,9 @@ module EventSource
       class Put
         include Log::Dependency
 
+        attr_writer :retry_delay
+        attr_writer :retry_limit
+
         configure :put
 
         dependency :request, Request::Post
@@ -41,12 +44,27 @@ module EventSource
 
           position = nil
 
-          request.(path, json_text, expected_version: expected_version) do |request, response|
-            telemetry.record :post, Telemetry::Post.new(request, response)
+          begin
+            request.(path, json_text, expected_version: expected_version) do |request, response|
+              telemetry.record :post, Telemetry::Post.new(request, response)
 
-            location = response['Location']
-            *, position = URI.parse(location).path.split '/'
-            position = position.to_i
+              location = response['Location']
+              *, position = URI.parse(location).path.split '/'
+              position = position.to_i
+            end
+          rescue Request::Post::WriteTimeoutError => error
+            retry_count ||= 0
+
+            logger.warn { "Write timeout error (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Path: #{path}, RetryCount: #{retry_count}/#{retry_limit}, RetryDelay: #{retry_delay.to_f.round 2})" }
+
+            raise error if retry_count >= retry_limit
+
+            retry_count += 1
+
+            telemetry.record :retry, Telemetry::Retry.new(request, error, retry_count, retry_limit)
+
+            sleep retry_delay
+            retry
           end
 
           logger.info { "Put event data batch done (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Position: #{position})" }
@@ -93,6 +111,36 @@ module EventSource
 
         def stream_path(stream_name)
           "/streams/#{stream_name}"
+        end
+
+        def retry_delay
+          @retry_delay ||= Defaults.retry_delay
+        end
+
+        def retry_limit
+          @retry_limit ||= Defaults.retry_limit
+        end
+
+        module Defaults
+          def self.retry_limit
+            limit = ENV['EVENT_STORE_WRITE_RETRY_LIMIT']
+
+            return limit.to_i if limit
+
+            3
+          end
+
+          def self.retry_delay
+            Rational(retry_delay_milliseconds, 1_000)
+          end
+
+          def self.retry_delay_milliseconds
+            delay = ENV['EVENT_STORE_WRITE_RETRY_DELAY']
+
+            return delay.to_i if delay
+
+            1_000
+          end
         end
       end
     end
