@@ -44,7 +44,7 @@ module EventSource
 
           position = nil
 
-          begin
+          retry_write_timeouts do
             request.(path, json_text, expected_version: expected_version) do |request, response|
               telemetry.record :post, Telemetry::Post.new(request, response)
 
@@ -52,24 +52,30 @@ module EventSource
               *, position = URI.parse(location).path.split '/'
               position = position.to_i
             end
-          rescue Request::Post::WriteTimeoutError => error
-            retry_count ||= 0
-
-            logger.warn { "Write timeout error (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Path: #{path}, RetryCount: #{retry_count}/#{retry_limit}, RetryDelay: #{retry_delay.to_f.round 2})" }
-
-            raise error if retry_count >= retry_limit
-
-            retry_count += 1
-
-            telemetry.record :retry, Telemetry::Retry.new(request, error, retry_count, retry_limit)
-
-            sleep retry_delay
-            retry
           end
 
           logger.info { "Put event data batch done (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Position: #{position})" }
 
           position
+        end
+
+        def retry_write_timeouts(&block)
+          block.()
+
+        rescue Request::Post::WriteTimeoutError => error
+          retry_count ||= 1
+
+          logger.warn { "Write timeout error (RetryCount: #{retry_count}/#{retry_limit}, RetryDelay: #{retry_delay.to_f.round 3}s)" }
+
+          raise error if retry_count > retry_limit
+
+          telemetry.record :retry, Telemetry::Retry.new(request, error, retry_count, retry_limit)
+
+          sleep retry_delay
+
+          retry_count += 1
+
+          retry
         end
 
         def serialize_batch(write_events)
