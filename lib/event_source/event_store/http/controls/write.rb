@@ -3,22 +3,27 @@ module EventSource
     module HTTP
       module Controls
         module Write
-          def self.call(event_count=nil, data: nil, metadata: nil, stream_name: nil, type: nil)
+          def self.call(event_count=nil, data: nil, metadata: nil, stream_name: nil, category: nil, type: nil)
             event_count ||= 1
-            stream_name ||= StreamName.example
+
+            if stream_name.nil?
+              stream_name = StreamName.example category: category
+            end
 
             ::EventStore::HTTP::Connect.() do |http|
-              post = Session::Request::WriteEvent.example(
-                type: type,
-                data: data,
-                metadata: metadata,
-                stream_name: stream_name
-              )
+              event_count.times do
+                post = Session::Request::WriteEvent.example(
+                  type: type,
+                  data: data,
+                  metadata: metadata,
+                  stream_name: stream_name
+                )
 
-              response = http.request post
+                response = http.request post
 
-              unless response.code.to_i == 201
-                fail "Write failed (StatusCode: #{response.code}, ReasonPhrase: #{response.message})"
+                unless response.code.to_i == 201
+                  fail "Write failed (StatusCode: #{response.code}, ReasonPhrase: #{response.message})"
+                end
               end
             end
 

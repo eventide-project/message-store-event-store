@@ -29,11 +29,34 @@ module EventSource
 
           path = stream_path stream_name, position
 
-          request.(path)
+          json_text, status_code = request.(path)
+
+          response = JSON.parse json_text
+
+          response['entries'].map do |entry_data|
+            event_data = EventData::Read.build(
+              :type => entry_data['eventType'],
+              :stream_name => entry_data['streamId'],
+              :position => entry_data['eventNumber'],
+              :global_position => entry_data['positionEventNumber']
+            )
+
+            data = JSON.parse entry_data['data'], symbolize_names: true
+            data = Casing::Underscore.(data)
+
+            event_data.data = data
+
+            metadata = JSON.parse entry_data['metaData'], symbolize_names: true
+            metadata = Casing::Underscore.(metadata)
+
+            event_data.metadata = metadata
+
+            event_data
+          end
         end
 
         def stream_path(stream_name, position)
-          "/streams/#{stream_name}/#{position}/#{direction}/#{slice_size}"
+          "/streams/#{stream_name}/#{position}/#{direction}/#{slice_size}?embed=body"
         end
 
         def self.direction(precedence=nil)

@@ -4,6 +4,7 @@ require 'event_store/cluster/leader_status'
 require 'event_source/event_store/http/log'
 require 'event_source/event_store/http/media_types'
 require 'event_source/event_store/http/settings'
+require 'event_source/event_store/http/stream_name'
 
 require 'event_source/event_store/http/session/build'
 require 'event_source/event_store/http/session/configure'
