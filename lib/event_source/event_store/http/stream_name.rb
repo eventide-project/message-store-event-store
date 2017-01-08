@@ -2,11 +2,15 @@ module EventSource
   module EventStore
     module HTTP
       module StreamName
-        def self.canonize(stream_name)
-          stream = EventSource::Stream.new stream_name
+        def self.canonize(stream_or_stream_name)
+          stream =
+            case stream_or_stream_name
+            when EventSource::Stream then stream_or_stream_name
+            else EventSource::Stream.new String(stream_or_stream_name)
+            end
 
           if stream.category?
-            category_stream_name stream_name
+            category_stream_name stream.name
           else
             stream.name
           end
