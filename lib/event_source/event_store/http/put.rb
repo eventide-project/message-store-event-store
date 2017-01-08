@@ -37,32 +37,58 @@ module EventSource
 
           path = stream_path stream_name
 
-          request_data = write_events.map do |write_event|
-            {
-              :event_id => uuid.get,
-              :event_type => write_event.type,
-              :data => write_event.data,
-              :metadata => write_event.metadata
-            }
-          end
-
-          formatted_data = Casing::Camel.(request_data)
-
-          json_text = JSON.pretty_generate formatted_data
+          json_text = serialize_batch write_events
 
           position = nil
 
-          response = request.(path, json_text, expected_version: expected_version) do |request|
+          request.(path, json_text, expected_version: expected_version) do |request, response|
             telemetry.record :post, Telemetry::Post.new(request, response)
 
             location = response['Location']
-            _, _, position = URI.parse(location).path.split '/'
-            position = location.to_i
+            *, position = URI.parse(location).path.split '/'
+            position = position.to_i
           end
 
-          logger.debug { "Put event data batch done (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Position: #{position})" }
+          logger.info { "Put event data batch done (StreamName: #{stream_name}, Size: #{write_events.size}, ExpectedVersion: #{expected_version.inspect}, Position: #{position})" }
 
           position
+        end
+
+        def serialize_batch(write_events)
+          logger.trace { "Serializing batch (Size: #{write_events.count})" }
+
+          formatted_data = write_events.map &method(:format_event_data)
+
+          json_text = JSON.pretty_generate formatted_data
+
+          logger.debug { "Serialized batch (Size: #{write_events.count})" }
+          logger.debug(tag: :data) { json_text }
+
+          json_text
+        end
+
+        def format_event_data(event)
+          logger.trace { "Formatting event data (Type: #{event.type})" }
+
+          data = {
+            'eventId' => uuid.get,
+            'eventType' => event.type
+          }
+
+          unless event.data.nil? || event.data.empty?
+            formatted_data = Casing::Camel.(event.data, symbol_to_string: true)
+            data['data'] = formatted_data
+          end
+
+          unless event.metadata.nil? || event.metadata.empty?
+            formatted_metadata = Casing::Camel.(event.metadata, symbol_to_string: true)
+            data['metadata'] = formatted_metadata
+          end
+
+          logger.debug { "Formatted event data (Type: #{event.type}, Data: #{data.key? :data}, Metadata: #{data.key? :metadata}" }
+          logger.debug(tag: :data) { data.pretty_inspect }
+
+          data
         end
 
         def stream_path(stream_name)

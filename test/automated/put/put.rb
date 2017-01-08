@@ -6,12 +6,7 @@ context "Put" do
 
   position = EventSource::EventStore::HTTP::Put.(write_event, stream_name)
 
-  get_response = EventStore::HTTP::Connect.() do |http|
-    http.request_get(
-      "/streams/#{stream_name}/#{position}",
-      { 'Accept' => EventSource::EventStore::HTTP::MediaTypes.vnd_event_store_atom_json }
-    )
-  end
+  get_response = Controls::Read::Event.(stream_name, position: position)
 
   test "Event is written" do
     assert get_response.code == '200'

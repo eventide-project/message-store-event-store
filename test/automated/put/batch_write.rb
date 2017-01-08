@@ -10,12 +10,7 @@ context "Put, Batch Of Events Is Written" do
 
   position = EventSource::EventStore::HTTP::Put.(batch, stream_name)
 
-  get_response = EventStore::HTTP::Connect.() do |http|
-    http.request_get(
-      "/streams/#{stream_name}/#{position}/forward/2?embed=body",
-      { 'Accept' => EventSource::EventStore::HTTP::MediaTypes.vnd_event_store_atom_json }
-    )
-  end
+  get_response = Controls::Read::Stream.(stream_name, position: position)
 
   test "Batch is written" do
     assert get_response.code == '200'

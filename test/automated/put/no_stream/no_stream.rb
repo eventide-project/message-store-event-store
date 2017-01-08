@@ -1,12 +1,12 @@
-require_relative '../automated_init'
+require_relative '../../automated_init'
 
-context "Put, Expected Version Is Supplied" do
-  stream_name = Controls::StreamName.example
-  write_event = Controls::EventData::Write.example
+context "Put, Expected Version Is No Stream" do
+  context "Stream does not exist" do
+    stream_name = Controls::StreamName.example
+    write_event = Controls::EventData::Write.example
 
-  put = EventSource::EventStore::HTTP::Put.build
+    put = EventSource::EventStore::HTTP::Put.build
 
-  context "Initial version" do
     expected_version = EventSource::NoStream.name
 
     telemetry_sink = put.class.register_telemetry_sink put

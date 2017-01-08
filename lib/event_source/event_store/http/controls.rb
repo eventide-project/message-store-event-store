@@ -31,4 +31,5 @@ require 'event_source/event_store/http/controls/uri/path'
 
 require 'event_source/event_store/http/controls/expected_version'
 
+require 'event_source/event_store/http/controls/read'
 require 'event_source/event_store/http/controls/write'

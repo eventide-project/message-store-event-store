@@ -18,8 +18,6 @@ module EventSource
 
             response = session.(request)
 
-            probe.(request, response) if probe
-
             status_code = response.code.to_i
 
             log_attributes << ", StatusCode: #{status_code}, ReasonPhrase: #{response.message}"
@@ -41,6 +39,8 @@ module EventSource
               logger.error error_message
               raise error_type, error_message
             end
+
+            probe.(request, response) if probe
 
             logger.debug { "POST request done (#{log_attributes}, StatusCode: #{status_code})" }
 
