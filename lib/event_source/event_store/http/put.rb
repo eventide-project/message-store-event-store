@@ -65,9 +65,12 @@ module EventSource
         rescue Request::Post::WriteTimeoutError => error
           retry_count ||= 1
 
-          logger.warn { "Write timeout error (RetryCount: #{retry_count}/#{retry_limit}, RetryDelay: #{retry_delay.to_f.round 3}s)" }
-
-          raise error if retry_count > retry_limit
+          if retry_count <= retry_limit
+            logger.warn { "Write timeout error: retrying (RetryCount: #{retry_count}/#{retry_limit}, RetryDelay: #{retry_delay.to_f.round 3}s)" }
+          else
+            logger.error { "Write timeout error: retry limit exceeded (RetryLimit: #{retry_limit})" }
+            raise error
+          end
 
           telemetry.record :retry, Telemetry::Retry.new(request, error, retry_count, retry_limit)
 
