@@ -7,9 +7,7 @@ context "Get" do
     Controls::Write.(1, category: category)
     Controls::Write.(2, category: category)
 
-    category_stream_name = EventSource::EventStore::HTTP::StreamName.category_stream_name category
-
-    events = EventSource::EventStore::HTTP::Get.(category_stream_name)
+    events = EventSource::EventStore::HTTP::Get.(category)
 
     number_of_events = events.count
 

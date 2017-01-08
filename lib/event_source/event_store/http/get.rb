@@ -56,6 +56,8 @@ module EventSource
         end
 
         def stream_path(stream_name, position)
+          stream_name = StreamName.canonize stream_name
+
           "/streams/#{stream_name}/#{position}/#{direction}/#{slice_size}?embed=body"
         end
 
