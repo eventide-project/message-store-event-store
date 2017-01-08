@@ -19,3 +19,7 @@ require 'event_source/event_store/http/request/post'
 
 require 'event_source/event_store/http/put'
 require 'event_source/event_store/http/put/telemetry'
+
+require 'event_source/event_store/http/iterator'
+
+require 'event_source/event_store/http/get'

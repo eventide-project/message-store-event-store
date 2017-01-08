@@ -36,8 +36,10 @@ module EventSource
             return response_body, status_code
           end
 
-          def enable_long_poll
-            headers['ES-LongPoll'] = Defaults.long_poll_duration.to_s
+          def enable_long_poll(duration=nil)
+            duration ||= Defaults.long_poll_duration
+
+            headers['ES-LongPoll'] = duration.to_s
           end
 
           def long_poll_enabled?
