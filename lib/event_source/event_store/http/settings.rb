@@ -1,7 +1,7 @@
 module EventSource
   module EventStore
     module HTTP
-      Settings = ::EventStore::HTTP::Connect::Settings
+      Settings = ::EventStore::HTTP::Settings
     end
   end
 end
