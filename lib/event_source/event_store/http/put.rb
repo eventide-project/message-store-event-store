@@ -26,6 +26,10 @@ module EventSource
 
           logger.trace { "Putting event data (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, ExpectedVersion: #{expected_version.inspect})" }
 
+          write_events.each do |write_event|
+            write_event.metadata = nil if write_event.metadata&.empty?
+          end
+
           begin
             location = write.(
               write_events,
