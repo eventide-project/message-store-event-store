@@ -10,4 +10,6 @@ require 'event_source/event_store/http/get'
 require 'event_source/event_store/http/get/assertions'
 require 'event_source/event_store/http/get/result'
 
+require 'event_source/event_store/http/put'
+
 require 'event_source/event_store/http/read'

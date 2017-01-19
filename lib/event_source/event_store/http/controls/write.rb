@@ -16,10 +16,7 @@ module EventSource
               events = Array(events)
             end
 
-            batch = ::EventStore::HTTP::MediaTypes::Events::Data.new
-            batch.events = events
-
-            ::EventStore::HTTP::Write.(batch, stream_name)
+            ::EventStore::HTTP::Write.(events, stream_name)
 
             stream_name
           end
