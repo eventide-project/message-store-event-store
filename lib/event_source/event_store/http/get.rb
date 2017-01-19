@@ -6,13 +6,13 @@ module EventSource
 
         configure :get
 
-        initializer :batch_size, :precedence
+        initializer :batch_size, :precedence, a(:long_poll_duration)
 
         dependency :session, Session
         dependency :read_stream, ::EventStore::HTTP::ReadStream
 
-        def self.build(batch_size: nil, precedence: nil, session: nil)
-          instance = new batch_size, precedence
+        def self.build(batch_size: nil, precedence: nil, long_poll_duration: nil, session: nil)
+          instance = new batch_size, precedence, long_poll_duration
           Session.configure instance, session: session
           ::EventStore::HTTP::ReadStream.configure instance
           instance.configure
@@ -27,6 +27,10 @@ module EventSource
         def configure
           read_stream.embed_body
           read_stream.output_schema = Result
+
+          unless long_poll_duration.nil?
+            read_stream.enable_long_poll long_poll_duration
+          end
         end
 
         def call(stream_name, position: nil)
