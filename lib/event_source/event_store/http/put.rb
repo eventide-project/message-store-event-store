@@ -22,17 +22,23 @@ module EventSource
         def call(write_events, stream_name, expected_version: nil)
           write_events = Array(write_events)
 
-          logger.trace { "Putting event data (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect})" }
+          expected_version = ExpectedVersion.canonize expected_version
 
-          location = write.(
-            write_events,
-            stream_name,
-            expected_version: expected_version
-          )
+          logger.trace { "Putting event data (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, ExpectedVersion: #{expected_version.inspect})" }
+
+          begin
+            location = write.(
+              write_events,
+              stream_name,
+              expected_version: expected_version
+            )
+          rescue ::EventStore::HTTP::Write::ExpectedVersionError => error
+            raise ExpectedVersion::Error, error.message
+          end
 
           *, position = location.path.split '/'
 
-          logger.debug { "Put event data done (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, Position: #{position})" }
+          logger.debug { "Put event data done (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, Position: #{position}, ExpectedVersion: #{expected_version.inspect})" }
 
           position.to_i
         end

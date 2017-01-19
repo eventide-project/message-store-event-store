@@ -4,9 +4,9 @@ context "Put and Get" do
   stream_name = Controls::StreamName.example
   write_event = Controls::EventData::Write.example
 
-  position = EventSource::EventStore::HTTP::Put.(write_event, stream_name)
+  EventSource::EventStore::HTTP::Put.(write_event, stream_name)
 
-  read_event, * = EventSource::EventStore::HTTP::Get.(stream_name, position: position)
+  read_event, * = EventSource::EventStore::HTTP::Get.(stream_name)
 
   context "Got the event that was written" do
     test "ID" do
