@@ -3,14 +3,17 @@ module EventSource
     module HTTP
       module Controls
         module Write
-          def self.call(events=nil, stream_name: nil)
+          def self.call(events=nil, instances: nil, stream_name: nil)
             stream_name ||= StreamName.example
 
-            events = Array(events)
-            events << EventData::Write.example if events.empty?
+            if events.nil?
+              instances ||= 1
 
-            events.each do |event|
-              event.id ||= Identifier::UUID::Random.get
+              events = instances.times.map do |position|
+                EventData::Write.example
+              end
+            else
+              events = Array(events)
             end
 
             batch = ::EventStore::HTTP::MediaTypes::Events::Data.new

@@ -6,7 +6,7 @@ module EventSource
 
         configure :get
 
-        initializer :batch_size, :position
+        initializer :batch_size, :precedence
 
         dependency :session, Session
         dependency :read_stream, ::EventStore::HTTP::ReadStream
@@ -32,11 +32,17 @@ module EventSource
         def call(stream_name, position: nil)
           logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'})" }
 
-          events = read_stream.(
-            stream_name,
-            position: position,
-            batch_size: batch_size
-          )
+          begin
+            events = read_stream.(
+              stream_name,
+              position: position,
+              batch_size: batch_size
+            )
+          rescue ::EventStore::HTTP::ReadStream::StreamNotFoundError
+            events = []
+          end
+
+          events.reverse! if precedence == :desc
 
           logger.debug { "Done reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, Events: #{events.count})" }
 

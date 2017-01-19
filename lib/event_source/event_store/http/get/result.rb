@@ -11,7 +11,9 @@ module EventSource
             def self.instance(raw_data)
               entries = raw_data.fetch :entries
 
-              entries.map do |atom_event|
+              events = []
+
+              entries.reverse_each do |atom_event|
                 event = EventData::Read.new
                 event.id = atom_event.fetch :event_id
                 event.type = atom_event.fetch :event_type
@@ -30,8 +32,10 @@ module EventSource
                 event.global_position = atom_event.fetch :position_event_number
                 event.time = Clock.parse atom_event.fetch(:updated)
 
-                event
+                events << event
               end
+
+              events
             end
 
             module JSON
