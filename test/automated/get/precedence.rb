@@ -5,22 +5,38 @@ context "Get" do
     stream_name = Controls::Write.(instances: 3)
 
     context "Ascending" do
-      events = EventSource::EventStore::HTTP::Get.(stream_name, precedence: :asc)
-
-      first_event_position = events.first.position
+      first_event, * = EventSource::EventStore::HTTP::Get.(stream_name, precedence: :asc)
 
       test "First event written is first in the list of results" do
-        assert first_event_position == 0
+        assert first_event.position == 0
       end
     end
 
     context "Descending" do
-      events = EventSource::EventStore::HTTP::Get.(stream_name, precedence: :desc)
+      context "Position is not set" do
+        first_event, * = EventSource::EventStore::HTTP::Get.(stream_name, precedence: :desc)
 
-      first_event_position = events.first.position
+        test "First event written is last in the list of results" do
+          assert first_event.position == 2
+        end
+      end
 
-      test "First event written is last in the list of results" do
-        assert first_event_position == 2
+      context "Position is set" do
+        first_event, * = EventSource::EventStore::HTTP::Get.(stream_name, position: 1, precedence: :desc)
+
+        test "Results start at specified position" do
+          assert first_event.position == 1
+        end
+      end
+
+      context "Stream not found" do
+        stream_name = Controls::StreamName.example
+
+        events = EventSource::EventStore::HTTP::Get.(stream_name, precedence: :desc)
+
+        test "No results" do
+          assert events == []
+        end
       end
     end
   end
