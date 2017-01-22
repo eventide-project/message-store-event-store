@@ -3,11 +3,7 @@ module EventSource
     module HTTP
       module StreamName
         def self.canonize(stream_or_stream_name)
-          stream =
-            case stream_or_stream_name
-            when EventSource::Stream then stream_or_stream_name
-            else EventSource::Stream.new String(stream_or_stream_name)
-            end
+          stream = EventSource::Stream.canonize stream_or_stream_name
 
           if stream.category?
             category_stream_name stream.name
