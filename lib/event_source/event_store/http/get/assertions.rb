@@ -14,6 +14,10 @@ module EventSource
               duration == value
             end
           end
+
+          def session?(session)
+            read_stream.connection.equal? session
+          end
         end
       end
     end

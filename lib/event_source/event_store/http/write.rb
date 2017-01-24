@@ -21,6 +21,12 @@ module EventSource
 
           last_position
         end
+
+        module Assertions
+          def session?(session)
+            put.write.connection.equal? session
+          end
+        end
       end
     end
   end
