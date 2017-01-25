@@ -5,7 +5,7 @@ module EventSource
         class Last
           include Log::Dependency
 
-          configure :get
+          configure :get_last
 
           dependency :read_stream, ::EventStore::HTTP::ReadStream
           dependency :session, Session
