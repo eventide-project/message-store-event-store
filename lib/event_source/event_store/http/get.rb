@@ -12,13 +12,15 @@ module EventSource
           @precedence ||= Defaults.precedence
         end
 
-        dependency :session, Session
         dependency :read_stream, ::EventStore::HTTP::ReadStream
+        dependency :session, Session
 
         def self.build(batch_size: nil, precedence: nil, long_poll_duration: nil, session: nil)
           instance = new batch_size, precedence, long_poll_duration
-          Session.configure instance, session: session
+
+          session = Session.configure instance, session: session
           ::EventStore::HTTP::ReadStream.configure instance, session: session
+
           instance.configure
           instance
         end
@@ -38,9 +40,9 @@ module EventSource
         end
 
         def call(stream_name, position: nil)
-          logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, Direction: #{direction}, BatchSize: #{batch_size})" }
-
           stream_name = StreamName.canonize stream_name
+
+          logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, Direction: #{direction}, BatchSize: #{batch_size})" }
 
           if precedence == :desc
             position = desc_position stream_name, position
