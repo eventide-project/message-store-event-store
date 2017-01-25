@@ -52,6 +52,8 @@ module EventSource
 
             last_event
           end
+
+          Assertions = Get::Assertions
         end
       end
     end
