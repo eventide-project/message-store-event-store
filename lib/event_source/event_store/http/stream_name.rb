@@ -3,7 +3,7 @@ module EventSource
     module HTTP
       module StreamName
         def self.canonize(stream_or_stream_name)
-          stream = EventSource::Stream.canonize stream_or_stream_name
+          stream = EventSource::Stream.build stream_or_stream_name
 
           if stream.category?
             category_stream_name stream.name

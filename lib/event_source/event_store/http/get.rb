@@ -40,6 +40,8 @@ module EventSource
         def call(stream_name, position: nil)
           logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, Direction: #{direction}, BatchSize: #{batch_size})" }
 
+          stream_name = StreamName.canonize stream_name
+
           if precedence == :desc
             position = desc_position stream_name, position
 
