@@ -9,6 +9,8 @@ module EventSource
         dependency :write, ::EventStore::HTTP::Write
 
         def self.build(session: nil)
+          session ||= Session.build
+
           instance = new
           ::EventStore::HTTP::Write.configure instance, session: session
           instance
