@@ -48,6 +48,16 @@ module EventSource
 
           position.to_i
         end
+
+        module Assertions
+          def self.extended(put)
+            put.write.extend ::EventStore::HTTP::Request::Assertions
+          end
+
+          def session?(session, copy: nil)
+            write.session? session, copy: copy
+          end
+        end
       end
     end
   end

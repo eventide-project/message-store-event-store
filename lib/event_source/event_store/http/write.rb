@@ -23,8 +23,12 @@ module EventSource
         end
 
         module Assertions
-          def session?(session)
-            put.write.connection.equal? session
+          def self.extended(write)
+            write.put.extend Put::Assertions
+          end
+
+          def session?(session, copy: nil)
+            put.session? session, copy: copy
           end
         end
       end
