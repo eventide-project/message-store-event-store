@@ -5,7 +5,6 @@ require 'event_store/http/controls'
 require 'event_source/event_store/http/controls/write'
 
 require 'event_source/event_store/http/controls/category'
-require 'event_source/event_store/http/controls/stream'
 require 'event_source/event_store/http/controls/stream_name'
 require 'event_source/event_store/http/controls/uuid'
 

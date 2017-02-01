@@ -6,12 +6,6 @@ module EventSource
           def self.example(*arguments)
             EventSource::Controls::StreamName.example *arguments
           end
-
-          module Category
-            def self.example
-              Stream::Category.example.name
-            end
-          end
         end
       end
     end
