@@ -54,7 +54,7 @@ module EventSource
             put.write.extend ::EventStore::HTTP::Request::Assertions
           end
 
-          def session?(session, strict: strict)
+          def session?(session, strict: nil)
             write.session? session, strict: strict
           end
         end
