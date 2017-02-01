@@ -27,8 +27,8 @@ module EventSource
             write.put.extend Put::Assertions
           end
 
-          def session?(session, copy: nil)
-            put.session? session, copy: copy
+          def session?(session, strict: nil)
+            put.session? session, strict: copy
           end
         end
       end

@@ -19,8 +19,8 @@ module EventSource
             end
           end
 
-          def session?(session, copy: nil)
-            read_stream.session? session, copy: copy
+          def session?(session, strict: nil)
+            read_stream.session? session, strict: copy
           end
         end
       end
