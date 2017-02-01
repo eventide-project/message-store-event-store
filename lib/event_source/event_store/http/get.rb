@@ -36,8 +36,6 @@ module EventSource
         end
 
         def call(stream_name, position: nil)
-          stream_name = StreamName.canonize stream_name
-
           logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size})" }
 
           begin

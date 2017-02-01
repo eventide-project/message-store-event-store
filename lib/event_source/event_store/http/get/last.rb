@@ -34,8 +34,6 @@ module EventSource
           end
 
           def call(stream_name)
-            stream_name = StreamName.canonize stream_name
-
             logger.trace { "Getting last event of stream (StreamName: #{stream_name})" }
 
             begin
