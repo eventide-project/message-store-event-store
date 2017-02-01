@@ -37,7 +37,7 @@ module EventSource
             logger.trace { "Getting last event of stream (StreamName: #{stream_name})" }
 
             begin
-              last_event, * = read_stream.(
+              event, * = read_stream.(
                 stream_name,
                 position: :head,
                 direction: :backward,
@@ -48,7 +48,7 @@ module EventSource
 
             logger.debug { "Got last event of stream (StreamName: #{stream_name}, EventType: #{event&.type.inspect}, Position: #{event&.position.inspect}, GlobalPosition: #{event&.global_position.inspect})" }
 
-            last_event
+            event
           end
 
           Assertions = Get::Assertions
