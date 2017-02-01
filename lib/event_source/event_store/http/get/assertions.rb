@@ -20,7 +20,7 @@ module EventSource
           end
 
           def session?(session, strict: nil)
-            read_stream.session? session, strict: copy
+            read_stream.session? session, strict: strict
           end
         end
       end

@@ -28,7 +28,7 @@ module EventSource
           end
 
           def session?(session, strict: nil)
-            put.session? session, strict: copy
+            put.session? session, strict: strict
           end
         end
       end
