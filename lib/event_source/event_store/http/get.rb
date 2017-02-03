@@ -8,6 +8,10 @@ module EventSource
 
         initializer :batch_size, a(:long_poll_duration)
 
+        def batch_size
+          @batch_size ||= Defaults.batch_size
+        end
+
         dependency :read_stream, ::EventStore::HTTP::ReadStream
         dependency :session, Session
 
@@ -51,6 +55,12 @@ module EventSource
           logger.debug { "Done reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size}, Events: #{events.count})" }
 
           events
+        end
+
+        module Defaults
+          def self.batch_size
+            20
+          end
         end
       end
     end
