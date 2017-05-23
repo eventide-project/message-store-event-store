@@ -1,5 +1,6 @@
 require 'event_source'
 require 'event_store/http'
+require 'message_store'
 
 require 'event_source/event_store/http/log'
 require 'event_source/event_store/http/session'
@@ -15,3 +16,4 @@ require 'event_source/event_store/http/put'
 require 'event_source/event_store/http/write'
 
 require 'event_source/event_store/http/read'
+require 'event_source/event_store/http/read/iterator'
