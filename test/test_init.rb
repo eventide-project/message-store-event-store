@@ -4,7 +4,7 @@ ENV['LOG_LEVEL'] ||= '_min'
 puts RUBY_DESCRIPTION
 
 require_relative '../init.rb'
-require 'event_source/event_store/http/controls'
+require 'message_store/event_store/controls'
 
 require 'test_bench'; TestBench.activate
 

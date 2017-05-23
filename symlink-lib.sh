@@ -1,3 +1,3 @@
 source ./library-symlinks.sh
 
-symlink_lib 'http' 'event_source/event_store'
+symlink_lib 'event_store' 'message_store'
