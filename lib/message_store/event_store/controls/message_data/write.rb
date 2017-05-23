@@ -7,7 +7,7 @@ module MessageStore
             def self.example(event_id=nil, type: nil, data: nil, metadata: nil)
               event_id ||= EventID.example
 
-              message_data = Write.example type: type, data: data, metadata: metadata
+              message_data = Write.example(type: type, data: data, metadata: metadata)
 
               event_type = message_data.type
               data = message_data.data

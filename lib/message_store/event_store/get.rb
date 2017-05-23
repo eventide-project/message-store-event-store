@@ -15,17 +15,19 @@ module MessageStore
       dependency :session, Session
 
       def self.build(batch_size: nil, long_poll_duration: nil, session: nil)
-        instance = new batch_size, long_poll_duration
+        instance = new(batch_size, long_poll_duration)
 
-        session = Session.configure instance, session: session
-        ::EventStore::HTTP::ReadStream.configure instance, session: session
+        Session.configure(instance, session: session)
+
+        session ||= instance.session
+        ::EventStore::HTTP::ReadStream.configure(instance, session: session)
 
         instance.configure
         instance
       end
 
       def self.call(stream_name, position: nil, **build_arguments)
-        instance = build **build_arguments
+        instance = build(**build_arguments)
         instance.(stream_name, position: position)
       end
 
@@ -34,12 +36,12 @@ module MessageStore
         read_stream.output_schema = Result
 
         unless long_poll_duration.nil?
-          read_stream.enable_long_poll long_poll_duration
+          read_stream.enable_long_poll(long_poll_duration)
         end
       end
 
       def call(stream_name, position: nil)
-        logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size})" }
+        logger.trace { "Reading stream (Stream Name: #{stream_name}, Position: #{position || '(start)'}, Batch Size: #{batch_size})" }
 
         begin
           messages = read_stream.(
@@ -51,7 +53,7 @@ module MessageStore
           messages = []
         end
 
-        logger.debug { "Done reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size}, Messages: #{messages.count})" }
+        logger.debug { "Done reading stream (Stream Name: #{stream_name}, Position: #{position || '(start)'}, Batch Size: #{batch_size}, Messages: #{messages.count})" }
 
         messages
       end

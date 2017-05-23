@@ -3,7 +3,7 @@ module MessageStore
     class Get
       module Assertions
         def self.extended(get)
-          get.read_stream.extend ::EventStore::HTTP::Request::Assertions
+          get.read_stream.extend(::EventStore::HTTP::Request::Assertions)
         end
 
         def long_poll_enabled?(value=nil)
@@ -19,7 +19,7 @@ module MessageStore
         end
 
         def session?(session, strict: nil)
-          read_stream.session? session, strict: strict
+          read_stream.session?(session, strict: strict)
         end
       end
     end

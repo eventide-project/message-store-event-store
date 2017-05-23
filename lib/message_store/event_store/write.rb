@@ -6,7 +6,7 @@ module MessageStore
       dependency :put, Put
 
       def configure(session: nil)
-        Put.configure self, session: session
+        Put.configure(self, session: session)
       end
 
       def write(batch, stream_name, expected_version: nil)
@@ -27,7 +27,7 @@ module MessageStore
         end
 
         def session?(session, strict: nil)
-          put.session? session, strict: strict
+          put.session?(session, strict: strict)
         end
       end
     end
