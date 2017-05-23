@@ -7,7 +7,7 @@ context "Write" do
         stream_name = Controls::StreamName.example
 
         write_event = Controls::EventData::Write.example
-        position = EventSource::EventStore::HTTP::Write.(write_event, stream_name)
+        position = MessageStore::EventStore::Write.(write_event, stream_name)
 
         incorrect_stream_version = position  + 1
 
@@ -17,7 +17,7 @@ context "Write" do
         batch = [write_event_1, write_event_2]
 
         erroneous = proc {
-          EventSource::EventStore::HTTP::Write.(
+          MessageStore::EventStore::Write.(
             batch,
             stream_name,
             expected_version: incorrect_stream_version
@@ -32,7 +32,7 @@ context "Write" do
 
         context "Events" do
           2.times do |i|
-            read_event, * = EventSource::EventStore::HTTP::Get.(stream_name, position: i + 1, batch_size: 1)
+            read_event, * = MessageStore::EventStore::Get.(stream_name, position: i + 1, batch_size: 1)
 
             test "Event #{i + 1} not written" do
               assert(read_event.nil?)

@@ -2,9 +2,9 @@ require_relative '../automated_init'
 
 context "Write" do
   context "Session predicate" do
-    session = EventSource::EventStore::HTTP::Session.build
+    session = MessageStore::EventStore::Session.build
 
-    write = EventSource::EventStore::HTTP::Write.build session: session
+    write = MessageStore::EventStore::Write.build session: session
 
     context "Writer session" do
       test "Is true" do
@@ -15,7 +15,7 @@ context "Write" do
     end
 
     context "Other session" do
-      other_session = EventSource::EventStore::HTTP::Session.build
+      other_session = MessageStore::EventStore::Session.build
 
       test "Is false" do
         refute write do

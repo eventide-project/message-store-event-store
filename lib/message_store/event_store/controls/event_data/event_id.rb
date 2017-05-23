@@ -1,12 +1,10 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      module Controls
-        module EventData
-          module EventID
-            def self.example
-              UUID.example
-            end
+    module Controls
+      module EventData
+        module EventID
+          def self.example
+            UUID.example
           end
         end
       end

@@ -1,7 +1,5 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      Settings = ::EventStore::HTTP::Settings
-    end
+    Settings = ::EventStore::HTTP::Settings
   end
 end

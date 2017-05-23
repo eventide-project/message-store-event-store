@@ -1,7 +1,5 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      Session = ::EventStore::HTTP::Session
-    end
+    Session = ::EventStore::HTTP::Session
   end
 end

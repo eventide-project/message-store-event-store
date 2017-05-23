@@ -9,7 +9,7 @@ context "Write" do
 
     batch = [write_event_1, write_event_2]
 
-    last_written_position = EventSource::EventStore::HTTP::Write.(batch, stream_name)
+    last_written_position = MessageStore::EventStore::Write.(batch, stream_name)
 
     test "Last written position" do
       assert(last_written_position == 1)
@@ -17,7 +17,7 @@ context "Write" do
 
     context "Individual Events are Written" do
       2.times do |i|
-        read_event, * = EventSource::EventStore::HTTP::Get.(stream_name, position: i, batch_size: 1)
+        read_event, * = MessageStore::EventStore::Get.(stream_name, position: i, batch_size: 1)
         write_event = batch[i]
 
         test "Event #{i + 1}" do

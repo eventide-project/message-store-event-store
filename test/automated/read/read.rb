@@ -5,7 +5,7 @@ context "Read" do
 
   batch = []
 
-  EventSource::EventStore::HTTP::Read.(stream_name, batch_size: 2) do |event_data|
+  MessageStore::EventStore::Read.(stream_name, batch_size: 2) do |event_data|
     batch << event_data
   end
 

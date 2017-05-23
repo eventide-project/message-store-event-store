@@ -7,13 +7,13 @@ context "Write" do
 
       write_event_1 = Controls::EventData::Write.example
 
-      position = EventSource::EventStore::HTTP::Write.(write_event_1, stream_name)
+      position = MessageStore::EventStore::Write.(write_event_1, stream_name)
 
       write_event_2 = Controls::EventData::Write.example
 
-      EventSource::EventStore::HTTP::Write.(write_event_2, stream_name, expected_version: position)
+      MessageStore::EventStore::Write.(write_event_2, stream_name, expected_version: position)
 
-      read_event, * = EventSource::EventStore::HTTP::Get.(stream_name, position: position + 1)
+      read_event, * = MessageStore::EventStore::Get.(stream_name, position: position + 1)
 
       test "Got the event that was written" do
         assert(read_event.data == write_event_2.data)

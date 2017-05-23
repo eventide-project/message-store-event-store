@@ -3,7 +3,7 @@ require_relative '../automated_init'
 context "Get" do
   context "Long poll" do
     context "Is not set" do
-      get = EventSource::EventStore::HTTP::Get.build
+      get = MessageStore::EventStore::Get.build
 
       test "Long poll is disabled" do
         refute get do
@@ -17,7 +17,7 @@ context "Get" do
     end
 
     context "Is set" do
-      get = EventSource::EventStore::HTTP::Get.build long_poll_duration: 11
+      get = MessageStore::EventStore::Get.build long_poll_duration: 11
 
       test "Long poll is enabled" do
         assert get do

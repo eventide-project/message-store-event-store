@@ -1,62 +1,60 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      class Put
-        include Log::Dependency
+    class Put
+      include Log::Dependency
 
-        configure :put
+      configure :put
 
-        dependency :write, ::EventStore::HTTP::Write
+      dependency :write, ::EventStore::HTTP::Write
 
-        def self.build(session: nil)
-          session ||= Session.build
+      def self.build(session: nil)
+        session ||= Session.build
 
-          instance = new
-          ::EventStore::HTTP::Write.configure instance, session: session
-          instance
+        instance = new
+        ::EventStore::HTTP::Write.configure instance, session: session
+        instance
+      end
+
+      def self.call(write_event, stream_name, expected_version: nil, session: nil)
+        instance = build session: session
+        instance.(write_event, stream_name, expected_version: expected_version)
+      end
+
+      def call(write_events, stream_name, expected_version: nil)
+        write_events = Array(write_events)
+
+        expected_version = ExpectedVersion.canonize expected_version
+
+        logger.trace { "Putting event data (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, ExpectedVersion: #{expected_version.inspect})" }
+
+        write_events.each do |write_event|
+          write_event.metadata = nil if write_event.metadata&.empty?
         end
 
-        def self.call(write_event, stream_name, expected_version: nil, session: nil)
-          instance = build session: session
-          instance.(write_event, stream_name, expected_version: expected_version)
+        begin
+          location = write.(
+            write_events,
+            stream_name,
+            expected_version: expected_version
+          )
+        rescue ::EventStore::HTTP::Write::ExpectedVersionError => error
+          raise ::EventSource::ExpectedVersion::Error, error.message
         end
 
-        def call(write_events, stream_name, expected_version: nil)
-          write_events = Array(write_events)
+        *, position = location.path.split '/'
 
-          expected_version = ExpectedVersion.canonize expected_version
+        logger.debug { "Put event data done (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, Position: #{position}, ExpectedVersion: #{expected_version.inspect})" }
 
-          logger.trace { "Putting event data (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, ExpectedVersion: #{expected_version.inspect})" }
+        position.to_i
+      end
 
-          write_events.each do |write_event|
-            write_event.metadata = nil if write_event.metadata&.empty?
-          end
-
-          begin
-            location = write.(
-              write_events,
-              stream_name,
-              expected_version: expected_version
-            )
-          rescue ::EventStore::HTTP::Write::ExpectedVersionError => error
-            raise ExpectedVersion::Error, error.message
-          end
-
-          *, position = location.path.split '/'
-
-          logger.debug { "Put event data done (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, Position: #{position}, ExpectedVersion: #{expected_version.inspect})" }
-
-          position.to_i
+      module Assertions
+        def self.extended(put)
+          put.write.extend ::EventStore::HTTP::Request::Assertions
         end
 
-        module Assertions
-          def self.extended(put)
-            put.write.extend ::EventStore::HTTP::Request::Assertions
-          end
-
-          def session?(session, strict: nil)
-            write.session? session, strict: strict
-          end
+        def session?(session, strict: nil)
+          write.session? session, strict: strict
         end
       end
     end

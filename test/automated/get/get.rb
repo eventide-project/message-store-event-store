@@ -5,7 +5,7 @@ context "Get" do
 
   stream_name = Controls::Write.(write_event)
 
-  read_event, * = EventSource::EventStore::HTTP::Get.(stream_name)
+  read_event, * = MessageStore::EventStore::Get.(stream_name)
 
   context "Retrieved event" do
     test "ID" do

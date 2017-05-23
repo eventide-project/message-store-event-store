@@ -7,8 +7,8 @@ context "Put" do
     write_event_1 = Controls::EventData::Write.example
     write_event_2 = Controls::EventData::Write.example
 
-    position_1 = EventSource::EventStore::HTTP::Put.(write_event_1, stream_name)
-    position_2 = EventSource::EventStore::HTTP::Put.(write_event_2, stream_name)
+    position_1 = MessageStore::EventStore::Put.(write_event_1, stream_name)
+    position_2 = MessageStore::EventStore::Put.(write_event_2, stream_name)
 
     test "First write returns position of first event" do
       assert position_1 == 0

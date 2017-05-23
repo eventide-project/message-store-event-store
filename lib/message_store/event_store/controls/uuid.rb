@@ -1,9 +1,7 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      module Controls
-        UUID = Identifier::UUID::Controls::Incrementing
-      end
+    module Controls
+      UUID = Identifier::UUID::Controls::Incrementing
     end
   end
 end

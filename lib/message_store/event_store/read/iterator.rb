@@ -1,13 +1,11 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      class Read
-        class Iterator
-          include MessageStore::Read::Iterator
+    class Read
+      class Iterator
+        include MessageStore::Read::Iterator
 
-          def last_position
-            batch.last.global_position
-          end
+        def last_position
+          batch.last.global_position
         end
       end
     end

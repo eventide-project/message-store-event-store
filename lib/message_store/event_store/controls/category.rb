@@ -1,9 +1,7 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      module Controls
-        Category = EventSource::Controls::Category
-      end
+    module Controls
+      Category = EventSource::Controls::Category
     end
   end
 end

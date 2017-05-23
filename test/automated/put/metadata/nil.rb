@@ -7,9 +7,9 @@ context "Put" do
 
       write_event = Controls::EventData::Write.example metadata: :none
 
-      position = EventSource::EventStore::HTTP::Put.(write_event, stream_name)
+      position = MessageStore::EventStore::Put.(write_event, stream_name)
 
-      read_event, * = EventSource::EventStore::HTTP::Get.(stream_name, position: position)
+      read_event, * = MessageStore::EventStore::Get.(stream_name, position: position)
 
       context "Read metadata" do
         test "Is nil" do

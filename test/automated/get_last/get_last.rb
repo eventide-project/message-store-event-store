@@ -6,7 +6,7 @@ context "Get Last" do
 
   stream_name = Controls::Write.([write_event_1, write_event_2])
 
-  last_event = EventSource::EventStore::HTTP::Get::Last.(stream_name)
+  last_event = MessageStore::EventStore::Get::Last.(stream_name)
 
   context "Is the last event that was written" do
     test "Type" do

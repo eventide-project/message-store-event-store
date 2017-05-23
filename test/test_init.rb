@@ -10,4 +10,4 @@ require 'test_bench'; TestBench.activate
 
 require 'pp'
 
-Controls = EventSource::EventStore::HTTP::Controls
+Controls = MessageStore::EventStore::Controls

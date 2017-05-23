@@ -2,9 +2,9 @@ require_relative '../automated_init'
 
 context "Get" do
   context "Session predicate" do
-    session = EventSource::EventStore::HTTP::Session.build
+    session = MessageStore::EventStore::Session.build
 
-    get = EventSource::EventStore::HTTP::Get.build session: session
+    get = MessageStore::EventStore::Get.build session: session
 
     context "Get session" do
       test "Is true" do
@@ -15,7 +15,7 @@ context "Get" do
     end
 
     context "Other session" do
-      other_session = EventSource::EventStore::HTTP::Session.build
+      other_session = MessageStore::EventStore::Session.build
 
       test "Is false" do
         refute get do

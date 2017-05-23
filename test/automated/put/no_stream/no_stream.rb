@@ -7,7 +7,7 @@ context "Put" do
 
       write_event = Controls::EventData::Write.example
 
-      location = EventSource::EventStore::HTTP::Put.(
+      location = MessageStore::EventStore::Put.(
         write_event,
         stream_name,
         expected_version: EventSource::NoStream.name

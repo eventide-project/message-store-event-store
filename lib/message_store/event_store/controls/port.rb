@@ -1,9 +1,7 @@
-module EventSource
+module MessageStore
   module EventStore
-    module HTTP
-      module Controls
-        Port = ::EventStore::HTTP::Connect::Controls::Port
-      end
+    module Controls
+      Port = ::EventStore::HTTP::Connect::Controls::Port
     end
   end
 end
