@@ -15,25 +15,25 @@ module MessageStore
         instance
       end
 
-      def self.call(write_event, stream_name, expected_version: nil, session: nil)
+      def self.call(message_data, stream_name, expected_version: nil, session: nil)
         instance = build session: session
-        instance.(write_event, stream_name, expected_version: expected_version)
+        instance.(message_data, stream_name, expected_version: expected_version)
       end
 
-      def call(write_events, stream_name, expected_version: nil)
-        write_events = Array(write_events)
+      def call(messages, stream_name, expected_version: nil)
+        messages = Array(messages)
 
         expected_version = ExpectedVersion.canonize expected_version
 
-        logger.trace { "Putting event data (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, ExpectedVersion: #{expected_version.inspect})" }
+        logger.trace { "Putting message data (StreamName: #{stream_name}, BatchSize: #{messages.count}, Types: #{messages.map(&:type).inspect}, ExpectedVersion: #{expected_version.inspect})" }
 
-        write_events.each do |write_event|
-          write_event.metadata = nil if write_event.metadata&.empty?
+        messages.each do |message_data|
+          message_data.metadata = nil if message_data.metadata&.empty?
         end
 
         begin
           location = write.(
-            write_events,
+            messages,
             stream_name,
             expected_version: expected_version
           )
@@ -43,7 +43,7 @@ module MessageStore
 
         *, position = location.path.split '/'
 
-        logger.debug { "Put event data done (StreamName: #{stream_name}, BatchSize: #{write_events.count}, Types: #{write_events.map(&:type).inspect}, Position: #{position}, ExpectedVersion: #{expected_version.inspect})" }
+        logger.debug { "Put message data done (StreamName: #{stream_name}, BatchSize: #{messages.count}, Types: #{messages.map(&:type).inspect}, Position: #{position}, ExpectedVersion: #{expected_version.inspect})" }
 
         position.to_i
       end

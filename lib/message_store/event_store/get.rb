@@ -42,18 +42,18 @@ module MessageStore
         logger.trace { "Reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size})" }
 
         begin
-          events = read_stream.(
+          messages = read_stream.(
             stream_name,
             position: position,
             batch_size: batch_size
           )
         rescue ::EventStore::HTTP::ReadStream::StreamNotFoundError
-          events = []
+          messages = []
         end
 
-        logger.debug { "Done reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size}, Events: #{events.count})" }
+        logger.debug { "Done reading stream (StreamName: #{stream_name}, Position: #{position || '(start)'}, BatchSize: #{batch_size}, Messages: #{messages.count})" }
 
-        events
+        messages
       end
 
       module Defaults

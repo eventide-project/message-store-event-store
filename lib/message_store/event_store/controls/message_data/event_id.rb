@@ -1,7 +1,7 @@
 module MessageStore
   module EventStore
     module Controls
-      module EventData
+      module MessageData
         module EventID
           def self.example
             UUID.example

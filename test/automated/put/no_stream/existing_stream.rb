@@ -5,11 +5,11 @@ context "Put" do
     context "For a stream that exists" do
       stream_name = Controls::Write.(instances: 1)
 
-      write_event = Controls::EventData::Write.example
+      write_message = Controls::MessageData::Write.example
 
       erroneous = proc {
         MessageStore::EventStore::Put.(
-          write_event,
+          write_message,
           stream_name,
           expected_version: MessageStore::NoStream.name
         )

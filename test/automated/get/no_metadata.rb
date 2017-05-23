@@ -1,15 +1,15 @@
 require_relative '../automated_init'
 
-context "Get, Event Has No Metadata" do
-  write_event = Controls::EventData::Write.example metadata: :none
+context "Get, Message Has No Metadata" do
+  write_message = Controls::MessageData::Write.example metadata: :none
 
-  stream_name = Controls::Write.(write_event)
+  stream_name = Controls::Write.(write_message)
 
-  read_event, * = MessageStore::EventStore::Get.(stream_name)
+  read_message, * = MessageStore::EventStore::Get.(stream_name)
 
-  context "Retrieved event" do
+  context "Retrieved message" do
     test "Metadata is not set" do
-      assert read_event.metadata == nil
+      assert read_message.metadata == nil
     end
   end
 end

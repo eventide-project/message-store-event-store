@@ -5,15 +5,15 @@ context "Put" do
     context "Empty" do
       stream_name = Controls::StreamName.example
 
-      write_event = Controls::EventData::Write.example metadata: {}
+      write_message = Controls::MessageData::Write.example metadata: {}
 
-      position = MessageStore::EventStore::Put.(write_event, stream_name)
+      position = MessageStore::EventStore::Put.(write_message, stream_name)
 
-      read_event, * = MessageStore::EventStore::Get.(stream_name, position: position)
+      read_message, * = MessageStore::EventStore::Get.(stream_name, position: position)
 
       context "Read metadata" do
         test "Is nil" do
-          assert read_event.metadata.nil?
+          assert read_message.metadata.nil?
         end
       end
     end

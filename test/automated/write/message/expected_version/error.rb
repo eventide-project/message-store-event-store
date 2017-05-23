@@ -1,19 +1,19 @@
 require_relative '../../../automated_init'
 
 context "Write" do
-  context "Event" do
+  context "Message" do
     context "Expected Version" do
       context "Does not match the stream version" do
         stream_name = Controls::StreamName.example
 
-        write_event = Controls::EventData::Write.example
-        position = MessageStore::EventStore::Write.(write_event, stream_name)
+        write_message = Controls::MessageData::Write.example
+        position = MessageStore::EventStore::Write.(write_message, stream_name)
 
         incorrect_stream_version = position  + 1
 
         erroneous = proc {
           MessageStore::EventStore::Write.(
-            write_event,
+            write_message,
             stream_name,
             expected_version: incorrect_stream_version
           )
@@ -25,15 +25,15 @@ context "Write" do
           end
         end
 
-        context "Event" do
-          read_event, * = MessageStore::EventStore::Get.(
+        context "Message" do
+          read_message, * = MessageStore::EventStore::Get.(
             stream_name,
             position: incorrect_stream_version,
             batch_size: 1
           )
 
           test "Is not written" do
-            assert(read_event.nil?)
+            assert(read_message.nil?)
           end
         end
       end

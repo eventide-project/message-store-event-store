@@ -1,28 +1,28 @@
 require_relative '../automated_init'
 
 context "Get Last" do
-  write_event_1 = Controls::EventData::Write.example
-  write_event_2 = Controls::EventData::Write.example
+  write_message_1 = Controls::MessageData::Write.example
+  write_message_2 = Controls::MessageData::Write.example
 
-  stream_name = Controls::Write.([write_event_1, write_event_2])
+  stream_name = Controls::Write.([write_message_1, write_message_2])
 
-  last_event = MessageStore::EventStore::Get::Last.(stream_name)
+  last_message = MessageStore::EventStore::Get::Last.(stream_name)
 
-  context "Is the last event that was written" do
+  context "Is the last message that was written" do
     test "Type" do
-      assert last_event.type == write_event_2.type
+      assert last_message.type == write_message_2.type
     end
 
     test "Position" do
-      assert last_event.position == 1
+      assert last_message.position == 1
     end
 
     test "Data" do
-      assert last_event.data == write_event_2.data
+      assert last_message.data == write_message_2.data
     end
 
     test "Metadata" do
-      assert last_event.metadata == write_event_2.metadata
+      assert last_message.metadata == write_message_2.metadata
     end
   end
 end

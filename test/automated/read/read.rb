@@ -5,15 +5,15 @@ context "Read" do
 
   batch = []
 
-  MessageStore::EventStore::Read.(stream_name, batch_size: 2) do |event_data|
-    batch << event_data
+  MessageStore::EventStore::Read.(stream_name, batch_size: 2) do |message_data|
+    batch << message_data
   end
 
-  test "Reads batches of events" do
+  test "Reads batches of messages" do
     assert batch.count == 3
   end
 
-  test "Events are returned in the order they were written" do
+  test "Messages are returned in the order they were written" do
     assert batch[0].position == 0
     assert batch[1].position == 1
     assert batch[2].position == 2

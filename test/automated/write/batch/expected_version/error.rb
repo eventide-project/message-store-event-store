@@ -6,15 +6,15 @@ context "Write" do
       context "Does not match the stream version" do
         stream_name = Controls::StreamName.example
 
-        write_event = Controls::EventData::Write.example
-        position = MessageStore::EventStore::Write.(write_event, stream_name)
+        write_message = Controls::MessageData::Write.example
+        position = MessageStore::EventStore::Write.(write_message, stream_name)
 
         incorrect_stream_version = position  + 1
 
-        write_event_1 = Controls::EventData::Write.example
-        write_event_2 = Controls::EventData::Write.example
+        write_message_1 = Controls::MessageData::Write.example
+        write_message_2 = Controls::MessageData::Write.example
 
-        batch = [write_event_1, write_event_2]
+        batch = [write_message_1, write_message_2]
 
         erroneous = proc {
           MessageStore::EventStore::Write.(
@@ -30,12 +30,12 @@ context "Write" do
           end
         end
 
-        context "Events" do
+        context "Messages" do
           2.times do |i|
-            read_event, * = MessageStore::EventStore::Get.(stream_name, position: i + 1, batch_size: 1)
+            read_message, * = MessageStore::EventStore::Get.(stream_name, position: i + 1, batch_size: 1)
 
-            test "Event #{i + 1} not written" do
-              assert(read_event.nil?)
+            test "Message #{i + 1} not written" do
+              assert(read_message.nil?)
             end
           end
         end

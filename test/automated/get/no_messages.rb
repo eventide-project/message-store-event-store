@@ -1,7 +1,7 @@
 require_relative '../automated_init'
 
 context "Get" do
-  context "No events" do
+  context "No messages" do
     stream_name = Controls::StreamName.example
 
     batch = MessageStore::EventStore::Get.(stream_name)

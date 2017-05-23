@@ -1,17 +1,17 @@
 module MessageStore
   module EventStore
     module Controls
-      module EventData
+      module MessageData
         module Write
           module Text
             def self.example(event_id=nil, type: nil, data: nil, metadata: nil)
               event_id ||= EventID.example
 
-              event_data = Write.example type: type, data: data, metadata: metadata
+              message_data = Write.example type: type, data: data, metadata: metadata
 
-              event_type = event_data.type
-              data = event_data.data
-              metadata = event_data.metadata
+              event_type = message_data.type
+              data = message_data.data
+              metadata = message_data.metadata
 
               raw_data = {
                 'eventId' => event_id,

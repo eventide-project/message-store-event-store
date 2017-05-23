@@ -33,10 +33,10 @@ module MessageStore
         end
 
         def call(stream_name)
-          logger.trace { "Getting last event of stream (StreamName: #{stream_name})" }
+          logger.trace { "Getting last message of stream (StreamName: #{stream_name})" }
 
           begin
-            event, * = read_stream.(
+            message_data, * = read_stream.(
               stream_name,
               position: :head,
               direction: :backward,
@@ -45,9 +45,9 @@ module MessageStore
           rescue ::EventStore::HTTP::ReadStream::StreamNotFoundError
           end
 
-          logger.debug { "Got last event of stream (StreamName: #{stream_name}, EventType: #{event&.type.inspect}, Position: #{event&.position.inspect}, GlobalPosition: #{event&.global_position.inspect})" }
+          logger.debug { "Got last message of stream (StreamName: #{stream_name}, MessageType: #{message_data&.type.inspect}, Position: #{message_data&.position.inspect}, GlobalPosition: #{message_data&.global_position.inspect})" }
 
-          event
+          message_data
         end
 
         Assertions = Get::Assertions

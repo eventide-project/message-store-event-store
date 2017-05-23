@@ -6,10 +6,10 @@ context "Put" do
 
     stream_name = Controls::Write.(instances: stream_version + 1)
 
-    write_event = Controls::EventData::Write.example
+    write_message = Controls::MessageData::Write.example
 
     position = MessageStore::EventStore::Put.(
-      write_event,
+      write_message,
       stream_name,
       expected_version: stream_version
     )
