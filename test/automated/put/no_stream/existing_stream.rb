@@ -11,13 +11,13 @@ context "Put" do
         MessageStore::EventStore::Put.(
           write_event,
           stream_name,
-          expected_version: EventSource::NoStream.name
+          expected_version: MessageStore::NoStream.name
         )
       }
 
       test "Is an error" do
         assert erroneous do
-          raises_error? EventSource::ExpectedVersion::Error
+          raises_error? MessageStore::ExpectedVersion::Error
         end
       end
     end

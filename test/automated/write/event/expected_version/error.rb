@@ -21,7 +21,7 @@ context "Write" do
 
         test "Is an error" do
           assert erroneous do
-            raises_error? EventSource::ExpectedVersion::Error
+            raises_error? MessageStore::ExpectedVersion::Error
           end
         end
 

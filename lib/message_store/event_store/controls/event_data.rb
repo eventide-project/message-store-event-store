@@ -1,7 +1,7 @@
 module MessageStore
   module EventStore
     module Controls
-      EventData = EventSource::Controls::EventData
+      EventData = MessageStore::Controls::MessageData
     end
   end
 end

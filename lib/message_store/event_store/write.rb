@@ -1,7 +1,7 @@
 module MessageStore
   module EventStore
     class Write
-      include EventSource::Write
+      include MessageStore::Write
 
       dependency :put, Put
 

@@ -3,7 +3,7 @@ module MessageStore
     module Controls
       module StreamName
         def self.example(*arguments)
-          EventSource::Controls::StreamName.example *arguments
+          MessageStore::Controls::StreamName.example *arguments
         end
       end
     end

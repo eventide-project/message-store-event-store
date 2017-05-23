@@ -1,4 +1,3 @@
-require 'event_source'
 require 'event_store/http'
 require 'message_store'
 

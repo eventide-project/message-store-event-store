@@ -13,7 +13,7 @@ module MessageStore
             events = []
 
             entries.reverse_each do |atom_event|
-              event = EventSource::EventData::Read.new
+              event = MessageData::Read.new
               event.id = atom_event.fetch :event_id
               event.type = atom_event.fetch :event_type
 

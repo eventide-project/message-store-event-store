@@ -10,7 +10,7 @@ context "Put" do
       location = MessageStore::EventStore::Put.(
         write_event,
         stream_name,
-        expected_version: EventSource::NoStream.name
+        expected_version: MessageStore::NoStream.name
       )
 
       test "Initial stream position is returned" do

@@ -38,7 +38,7 @@ module MessageStore
             expected_version: expected_version
           )
         rescue ::EventStore::HTTP::Write::ExpectedVersionError => error
-          raise ::EventSource::ExpectedVersion::Error, error.message
+          raise ExpectedVersion::Error, error.message
         end
 
         *, position = location.path.split '/'

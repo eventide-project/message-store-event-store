@@ -1,5 +1,5 @@
 require 'identifier/uuid/controls'
-require 'event_source/controls'
+require 'message_store/controls'
 require 'event_store/http/controls'
 
 require 'message_store/event_store/controls/write'

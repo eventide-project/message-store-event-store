@@ -1,7 +1,7 @@
 module MessageStore
   module EventStore
     class Read
-      include EventSource::Read
+      include MessageStore::Read
 
       def configure(session: nil)
         Iterator.configure(self, stream_name, position: position)
