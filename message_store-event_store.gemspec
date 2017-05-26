@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.name = 'evt-message_store-event_store'
   s.version = '0.0.0.0'
-  s.summary = "Message store client for EventStore's HTTP interface"
+  s.summary = "Message store client for EventStore"
   s.description = ' '
 
   s.authors = ['The Eventide Project']
